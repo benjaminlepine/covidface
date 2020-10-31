@@ -1,17 +1,24 @@
 <template>
   <div class="home">
-    <HelloWorld msg="COVID-FACE"/>
+    <HomePage/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/Covidgame.vue'
+import Covidgame from '@/components/Covidgame.vue'
+import HomePage from '@/components/HomePage.vue'
 
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    HomePage
   }
 }
 </script>
+
+<style lang="scss">
+  .home{
+    height: auto;
+  }
+</style>
