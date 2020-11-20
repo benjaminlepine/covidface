@@ -4,7 +4,8 @@ import Home from '../views/Home.vue'
 import Covidgame from '../components/Covidgame';
 import Homepage from '../components/HomePage';
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
+
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
