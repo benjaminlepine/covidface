@@ -53,6 +53,7 @@
 
   .home{
     &-ctn{
+      padding-bottom: 20px;
       min-height: 900px;
       background-image: linear-gradient(#34A2E3, #000327);
     }
@@ -89,8 +90,7 @@
 
     }
     &-ctn{
-      margin-bottom: 100px;
-      padding-bottom: 100px;
+
       & h1{
         color: #5ff759;
         font-size: 35px;
@@ -102,7 +102,6 @@
       margin: 30px;
     }
     &-element{
-
       transition: filter 300ms, opacity 300ms, transform .8s ease-in-out;
       -webkit-transition: -webkit-transform .4s ease-in-out;
       padding: 15px;
@@ -118,7 +117,10 @@
       }
     }
     &-subtitle{
-      color: white;
+      color: #a2c2e3;
+      margin-bottom: 0;
+      font-size: 18px;
+      font-family: Helvetica;
     }
   }
 </style>
