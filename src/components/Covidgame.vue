@@ -33,11 +33,13 @@
                 </div>
             </div>
         </div>
+        <router-link to="/EndGame">EndGame</router-link>
     </div>
 </template>
 
 <script>
     import axios from 'axios';
+    import EndGame from '../components/EndGame';
     export default {
         name: 'Covidgame',
         props: {
@@ -166,8 +168,8 @@
                 min-height: 60px;
                 text-transform: capitalize;
                 padding: 6px 20px;
-                background-color: $base-color;
-                color: white;
+                //background-color: $base-color;
+                //color: white;
                 font-size: 18px;
                 border-radius: 16px;
                 border: none;

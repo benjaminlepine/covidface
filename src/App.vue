@@ -12,11 +12,12 @@
   text-align: center;
   height: auto;
   color: #2c3e50;
+  min-height: 100%;
+  background-image: linear-gradient(#34A2E3, #000327);
 }
 
 #nav {
   padding: 30px;
-
   a {
     font-weight: bold;
     color: #2c3e50;
