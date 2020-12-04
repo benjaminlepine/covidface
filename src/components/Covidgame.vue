@@ -1,13 +1,29 @@
 <template>
     <div>
-        <div class="hello"></div>
         <div class="starface">
+            <input type="text" class="uglyfocusinput" value="A text field">
+            <p class="score score-ctn mb-0">SCORE: {{answerApihh.score}}</p>
+            <svg id="svg-root" width="800" height="600" class="score-ctn2"
+                 xmlns="http://www.w3.org/2000/svg"
+                 xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="test-body-content">
+                    <defs>
+                        <filter id="blur" filterUnits="userSpaceOnUse">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                            <feMerge>
+                                <feMergeNode in="blur" />
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    <rect x="10" y="35" width="120" height="50" fill="white" filter="url(#blur)"></rect>
+                </g>
+            </svg>
             <img class="starface--img" :src="answerApi[0].url" alt="">
             <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
             <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
             <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
             <div>
-                <div class="answers">
+                <div class="answers mt-1">
                     <button v-on:click="sendAnswer(answerApi[0].choices[0])" class="answers--choice">{{answerApi[0].choices[0]}}</button>
                     <button v-on:click="sendAnswer(answerApi[0].choices[1])" class="answers--choice">{{answerApi[0].choices[1]}}</button>
                 </div>
@@ -30,10 +46,6 @@
         //el : 'main',
         data: function () {
             return {
-                answerOne: 'Brad Pitt',
-                answerTwo: 'Jean Dujardin',
-                answerThree: 'Matt Damon',
-                answerFour: 'Georges Clooney',
                 displayMask: true,
                 virus: false,
                 seringue: false,
@@ -59,31 +71,33 @@
                 setTimeout(function () {
                     this.displayMask = true;
                     this.LoadNewData(); }.bind(this), 800);
+
             },
             async LoadNewData(){
                 var res;
                 await axios.get("http://service.covid-face.com/face")
                     .then( response => {
                         res = response.data;
+                        console.log("RESPONSE GET = ", res[0].game_end);
                     }).catch(error => {
                     });
                 this.answerApi = res;
-            },
+                document.querySelector(".uglyfocusinput").focus();
 
+            },
             async sendAnswer(answer){
-                // console.log('this.answerApi.HASH = ',this.answerApi[0].hash);
-                // console.log('Reponse de l utilisateur = ',answer);
                 var res;
                 var formdata = new FormData();
                 formdata.append("hash", this.answerApi[0].hash);
                 formdata.append("response", answer);
                 await axios.post("http://service.covid-face.com/face", formdata).then( response => {
-                    console.log('RESPONSE = ',response.data);
+                    console.log('RESPONSE POST = ',response.data);
                     res = response.data;
                 }).catch(error => {
                     console.error(error);
                 });
                 this.answerApihh = res;
+                console.log('answerApihh= ', this.answerApihh);
                 this.displayAnimation(res.result)
             }
         }
@@ -93,6 +107,33 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
+    $base-color: #2c3e50;
+    $answer-color: #279a39;
+
+    .score{
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .score-ctn{
+        left: 50%;
+        margin-left: -190px;
+        margin-top: 45px;
+        position: absolute;
+        border-radius: 8px;
+        padding: 2px 8px;
+        z-index: 2;
+    }
+
+    .score-ctn2{
+        position: absolute;
+    }
+
+    .uglyfocusinput{
+        position: absolute;
+        left: -300px;
+    }
 
     .starface{
         position: relative;
@@ -123,8 +164,9 @@
 
             &--choice {
                 min-height: 60px;
+                text-transform: capitalize;
                 padding: 6px 20px;
-                background-color: #2c3e50;
+                background-color: $base-color;
                 color: white;
                 font-size: 18px;
                 border-radius: 16px;
@@ -132,9 +174,13 @@
                 margin: 4px 4px;
                 width: 100%;
                 max-width: 208px;
-                &:hover{
-                    opacity: 0.8;
+                transition: background-color 200ms;
+                &:hover{opacity: 0.8;}
+                &:focus{
+                    outline: none;
+                    background-color: #2694ab;
                 }
+                &:active{background-color: #1d6273;}
             }
         }
     }

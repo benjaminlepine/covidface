@@ -4,7 +4,33 @@
     <h1 class="home-title mt-4">COVID-FACE</h1>
     <p class="home-subtitle">Devinez qui est sous le masque COVID-19</p>
     <router-link to="/Covidgame" class="btn home-btn home-btn--start">Commencer</router-link><br>
-    <button v-on:click="StartGame()" class="btn home-btn home-btn--cancel mt-2">Quitter</button>
+    <div class="categorie-ctn mb-5">
+      <h1>CATEGORIES</h1>
+      <div class="row">
+        <div class="col"></div>
+        <div class="categorie-element col">
+          <img class="categorie-icn" src="../assets/football.png" alt="football">
+          <p class="categorie-subtitle">Football</p>
+        </div>
+        <div class="categorie-element col">
+          <img class="categorie-icn" src="../assets/politic.png" alt="politic">
+          <p class="categorie-subtitle">Politique</p>
+        </div>
+        <div class="col"></div>
+      </div>
+      <div class="row">
+        <div class="col"></div>
+        <div class="categorie-element col">
+          <img class="categorie-icn" src="../assets/cinema.png" alt="cinema">
+          <p class="categorie-subtitle">Cinéma</p>
+        </div>
+        <div class="categorie-element col">
+          <img class="categorie-icn" src="../assets/music.png" alt="music">
+          <p class="categorie-subtitle">Musique</p>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,6 +50,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
+
   .home{
     &-ctn{
       min-height: 900px;
@@ -53,6 +80,45 @@
         color: #BADAFB;
         &:hover{color: #BADAFB;};
       }
+    }
+  }
+
+  .categorie{
+    &-icn {
+      max-width: 100px;
+
+    }
+    &-ctn{
+      margin-bottom: 100px;
+      padding-bottom: 100px;
+      & h1{
+        color: #5ff759;
+        font-size: 35px;
+        font-family: Coronaviral;
+      }
+      border: 2px solid #5FF759;
+      border-radius: 30px;
+      padding: 20px;
+      margin: 30px;
+    }
+    &-element{
+
+      transition: filter 300ms, opacity 300ms, transform .8s ease-in-out;
+      -webkit-transition: -webkit-transform .4s ease-in-out;
+      padding: 15px;
+      border: solid transparent 2px;
+      &:hover {
+        filter: brightness(1.25);
+        cursor: pointer;
+        -webkit-transform: rotate(10deg);
+        transform: rotate(10deg);
+        border-radius: 50%;
+        border-color: #536d8a;
+
+      }
+    }
+    &-subtitle{
+      color: white;
     }
   }
 </style>
