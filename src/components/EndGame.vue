@@ -1,14 +1,15 @@
 <template>
   <div class="score-ctn">
     <h1 class="score-title">Votre Score :</h1>
-    <h1 class="score-result">{{score}}</h1>
-
-    <div id="myProgress">
-      <div ref="myButton" id="myButton">10%</div>
+    <h1 class="score-result" id="scoreText" ref="scoreText">{{score}}</h1>
+    <div class="m-4">
+      <div id="myProgress">
+        <div ref="scoreBar" id="scoreBar" class="pt-2">0%</div>
+      </div>
     </div>
-    <button @click="move">Click Me</button>
-
-    <router-link to="/Covidgame" class="btn covid-btn covid-btn--start">Nouvelle partie</router-link>
+    <div class="m-4">
+    <router-link to="/Covidgame" class="btn covid-btn covid-btn--start w-100">Nouvelle partie</router-link>
+    </div>
   </div>
 </template>
 
@@ -27,24 +28,27 @@
         var i = 0;
         if (i === 0) {
           i = 1;
-          var elem = this.$refs.myButton;
-          var width = 10;
-          var id = setInterval(frame, 10);
+          var scoreBar = this.$refs.scoreBar;
+          var scoreText = this.$refs.scoreText;
+          var width = this.score;
+          var id = setInterval(frame, 15);
           function frame() {
             if (width >= 80) {
               clearInterval(id);
               i = 0;
             } else {
               width++;
-              elem.style.width = width + "%";
-              elem.innerHTML = width  + "%";
+              scoreBar.style.width = width + "%";
+              scoreBar.innerHTML = width  + "%";
+              scoreText.innerHTML = width*190;
             }
           }
         }
       }
     },
     mounted() {
-      this.score = 1580;
+      this.score = 0;
+      this.move()
     }
   }
 </script>
@@ -74,13 +78,17 @@
     background-color: #ddd;
   }
 
-  #myButton {
+  #scoreBar {
     width: 10%;
-    height: 30px;
+    height: 50px;
     background-color: #4CAF50;
     text-align: center;
     line-height: 30px;
     color: white;
+  }
+
+  .bar-ctn{
+    //margin: 0 20px;
   }
 
 
