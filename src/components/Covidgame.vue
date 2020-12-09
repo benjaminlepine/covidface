@@ -38,104 +38,108 @@
 </template>
 
 <script>
-import axios from 'axios';
-import EndGame from '../components/EndGame';
-export default {
+  import axios from 'axios';
+  import EndGame from '../components/EndGame';
+
+
+  export default {
     name: 'Covidgame',
     props: {
-        msg: String
+      msg: String
     },
     //el : 'main',
     data: function () {
-        return {
-            displayMask: true,
-            virus: false,
-            seringue: false,
-            answerApi: [],
-            answerApihh: [],
-            requestOptions: {}
-        }
+      return {
+        displayMask: true,
+        virus: false,
+        seringue: false,
+        answerApi: [],
+        answerApihh: [],
+        requestOptions: {}
+      }
     },
     created(){
-        this.LoadNewData();
+      this.LoadNewData();
     },
     methods : {
-        displayAnimation(result, gameId) {
-            this.displayMask = false;
-            if(!result){
-                this.virus = true;
-                setTimeout(function () { this.virus = false; }.bind(this), 800);
-            }
-            if(result){
-                this.seringue = true;
-                setTimeout(function () { this.seringue = false; }.bind(this), 800);
-            }
-            setTimeout(function () {
-                this.displayMask = true;
-                this.LoadNewData(gameId); }.bind(this), 800);
+      displayAnimation(result, gameId) {
+        this.displayMask = false;
+        if(!result){
+          this.virus = true;
+          setTimeout(function () { this.virus = false; }.bind(this), 800);
+        }
+        if(result){
+          this.seringue = true;
+          setTimeout(function () { this.seringue = false; }.bind(this), 800);
+        }
+        setTimeout(function () {
+          this.displayMask = true;
+          this.LoadNewData(gameId); }.bind(this), 800);
 
-        },
-        async LoadNewData(gameId){
-            var res;
-            console.log(gameId);
-            if (gameId != undefined) {
-                var params = {
-                    params: {
-                        gameId: gameId
-                    }
-                };
-            } else {
-                var params = {};
+      },
+
+      loadEndgame(){
+        this.$router.push('/EndGame');
+      },
+      
+      async LoadNewData(gameId){
+        var res;
+        console.log(gameId);
+        if (gameId != undefined) {
+          var params = {
+            params: {
+              gameId: gameId
             }
-            await axios.get("http://service.covid-face.com/face", params)
+          };
+        } else {
+          var params = {};
+        }
+        await axios.get("http://service.covid-face.com/face", params)
                 .then( response => {
-                    res = response.data;
-                    console.log("RESPONSE GET = ", res[0].game_end);
+                  res = response.data;
+                  if(res[0].game_end){
+                    this.loadEndgame();
+                  }
                 }).catch(error => {
                 });
-            this.answerApi = res;
-            document.querySelector(".uglyfocusinput").focus();
+        this.answerApi = res;
+        document.querySelector(".uglyfocusinput").focus();
 
-        },
-        async sendAnswer(answer){
-            var res;
-            var formdata = new FormData();
-            formdata.append("hash", this.answerApi[0].hash);
-            formdata.append("response", answer);
-            formdata.append("gameId", this.answerApi[0].gameId);
+      },
+      async sendAnswer(answer){
+        var res;
+        var formdata = new FormData();
+        formdata.append("hash", this.answerApi[0].hash);
+        formdata.append("response", answer);
+        formdata.append("gameId", this.answerApi[0].gameId);
 
-            await axios.post("http://service.covid-face.com/face", formdata).then( response => {
-                console.log('RESPONSE POST = ',response.data);
-                res = response.data;
-            }).catch(error => {
-                console.error(error);
-            });
-            this.answerApihh = res;
-            console.log('answerApihh= ', this.answerApihh);
-
-            if (res.gameEnd != true) {
-                this.displayAnimation(res.result, res.gameId)
-            } else {
-                this.$router.push('EndGame');
-            }
-        }
+        await axios.post("http://service.covid-face.com/face", formdata).then( response => {
+          console.log('RESPONSE POST = ',response.data);
+          res = response.data;
+        }).catch(error => {
+          console.error(error);
+        });
+        this.answerApihh = res;
+        //console.log('answerApihh= ', this.answerApihh);
+        this.displayAnimation(res.result, res.gameId)
+      }
     }
-}
+  }
 </script>
 
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 
-$base-color: #2c3e50;
-$answer-color: #279a39;
+  $base-color: #2c3e50;
+  $answer-color: #279a39;
 
-.score{
+  .score{
     text-align: center;
     font-size: 18px;
     font-weight: bold;
-}
-.score-ctn{
+  }
+  .score-ctn{
     left: 50%;
     margin-left: -190px;
     margin-top: 45px;
@@ -143,70 +147,70 @@ $answer-color: #279a39;
     border-radius: 8px;
     padding: 2px 8px;
     z-index: 2;
-}
+  }
 
-.score-ctn2{
+  .score-ctn2{
     position: absolute;
-}
+  }
 
-.uglyfocusinput{
+  .uglyfocusinput{
     position: absolute;
     left: -300px;
-}
+  }
 
-.starface{
+  .starface{
     position: relative;
     &--img{
-        margin-top: 25px;
-        border-radius: 25px;
-        max-width: 95%;
-        max-height: 700px;
+      margin-top: 25px;
+      border-radius: 25px;
+      max-width: 95%;
+      max-height: 700px;
     }
     &--mask{
-        position: absolute;
-        left: 50%;
-        margin-left: -128px;
-        top: 37%;
-        max-width: 265px;
+      position: absolute;
+      left: 50%;
+      margin-left: -128px;
+      top: 37%;
+      max-width: 265px;
     }
     &--aswitem{
-        position: absolute;
-        left: 50%;
-        margin-left: -60px;
-        top: 67%;
-        max-width: 120px;
+      position: absolute;
+      left: 50%;
+      margin-left: -60px;
+      top: 67%;
+      max-width: 120px;
     }
     .answers {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-        &--choice {
-            min-height: 60px;
-            text-transform: capitalize;
-            padding: 6px 20px;
-            //background-color: $base-color;
-            //color: white;
-            font-size: 18px;
-            border-radius: 16px;
-            border: none;
-            margin: 4px 4px;
-            width: 100%;
-            max-width: 208px;
-            transition: background-color 200ms;
-            &:hover{opacity: 0.8;}
-            &:focus{
-                outline: none;
-                background-color: #2694ab;
-            }
-            &:active{background-color: #1d6273;}
+      &--choice {
+        min-height: 60px;
+        text-transform: capitalize;
+        padding: 6px 20px;
+        //background-color: $base-color;
+        //color: white;
+        font-size: 18px;
+        border-radius: 16px;
+        border: none;
+        margin: 4px 4px;
+        width: 100%;
+        max-width: 208px;
+        transition: background-color 200ms;
+        &:hover{opacity: 0.8;}
+        &:focus{
+          outline: none;
+          background-color: #2694ab;
         }
+        &:active{background-color: #1d6273;}
+      }
     }
-}
-@media screen and (max-width: 450px){.starface--mask{max-width: 250px;margin-left:-125px;}}
-@media screen and (max-width: 400px){.starface--mask{max-width: 225px;margin-left:-111px;}}
-@media screen and (max-width: 350px){.starface--mask{max-width: 200px;margin-left:-100px;top: 35.5%;}}
-@media screen and (max-width: 300px){.starface--mask{max-width: 165px;margin-left:-82px;top: 33.5%;}}
-@media screen and (max-width: 250px){.starface--mask{max-width: 155px;margin-left:-82px;top: 32.5%;}}
+  }
+  @media screen and (max-width: 450px){.starface--mask{max-width: 250px;margin-left:-125px;}}
+  @media screen and (max-width: 400px){.starface--mask{max-width: 225px;margin-left:-111px;}}
+  @media screen and (max-width: 350px){.starface--mask{max-width: 200px;margin-left:-100px;top: 35.5%;}}
+  @media screen and (max-width: 300px){.starface--mask{max-width: 165px;margin-left:-82px;top: 33.5%;}}
+  @media screen and (max-width: 250px){.starface--mask{max-width: 155px;margin-left:-82px;top: 32.5%;}}
 
 </style>
