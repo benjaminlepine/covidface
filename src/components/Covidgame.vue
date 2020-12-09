@@ -33,14 +33,12 @@
         </div>
       </div>
     </div>
-    <router-link to="/EndGame">EndGame</router-link>
   </div>
 </template>
 
 <script>
   import axios from 'axios';
-  import EndGame from '../components/EndGame';
-
+  import store from '../store/index.js';
 
   export default {
     name: 'Covidgame',
@@ -55,7 +53,8 @@
         seringue: false,
         answerApi: [],
         answerApihh: [],
-        requestOptions: {}
+        requestOptions: {},
+        store: store
       }
     },
     created(){
@@ -81,10 +80,10 @@
       loadEndgame(){
         this.$router.push('/EndGame');
       },
-      
+
       async LoadNewData(gameId){
         var res;
-        console.log(gameId);
+
         if (gameId != undefined) {
           var params = {
             params: {
@@ -114,13 +113,14 @@
         formdata.append("gameId", this.answerApi[0].gameId);
 
         await axios.post("http://service.covid-face.com/face", formdata).then( response => {
-          console.log('RESPONSE POST = ',response.data);
+          //console.log('RESPONSE POST = ',response.data);
           res = response.data;
         }).catch(error => {
           console.error(error);
         });
         this.answerApihh = res;
-        //console.log('answerApihh= ', this.answerApihh);
+        // Store score in global store
+        store.state.score = this.answerApihh.score;
         this.displayAnimation(res.result, res.gameId)
       }
     }
