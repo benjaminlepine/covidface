@@ -1,12 +1,14 @@
 <template>
   <div class="home-ctn pt-3">
-    <h1 class="home-title mt-2">COVID-FACE</h1>
     <img class="home-macron" src="../assets/macron.png" alt="">
-
-    <p class="home-subtitle">Devinez qui est sous le masque COVID-19</p>
+    <h1 class="home-title mt-4">COVID-FACE</h1>
+    <div class="home-subtitle">
+        <h2>Trouvez quelle star se cache sous le masque.</h2>
+        <p>Jouez au quiz du coronavirus et identifiez les stars masquées. Serez-vous capable d'obtenir le meilleur score</p>
+    </div>
     <router-link to="/Covidgame" class="btn covid-btn covid-btn--start">Commencer</router-link><br>
-    <div class="categorie-ctn mb-5">
-      <h1 class="mb-0">CATEGORIES</h1>
+    <!--<div class="categorie-ctn mb-5">
+      <h1>CATEGORIES</h1>
       <div class="row">
         <div class="categorie-element--ghost col"></div>
         <div class="categorie-element col">
@@ -31,7 +33,7 @@
         </div>
         <div class="categorie-element--ghost col"></div>
       </div>
-    </div>
+    </div>-->
   </div>
 </template>
 
