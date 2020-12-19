@@ -90,7 +90,6 @@
       transition: filter 300ms, opacity 300ms, transform .8s ease-in-out;
       -webkit-transition: -webkit-transform .4s ease-in-out;
       padding: 0px;
-      border: solid transparent 2px;
       &:hover {
         filter: brightness(1.25);
         cursor: pointer;

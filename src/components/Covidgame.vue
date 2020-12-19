@@ -27,7 +27,8 @@
     export default {
         name: 'Covidgame',
         props: {
-            msg: String
+            msg: String,
+            argent: String
         },
         //el : 'main',
         data: function () {
