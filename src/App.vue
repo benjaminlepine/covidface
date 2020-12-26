@@ -5,6 +5,13 @@
 </template>
 
 <style lang="scss">
+
+  @font-face {
+    font-family: "Coronaviral";
+    src: local("Coronaviral"),
+    url(./fonts/Coronaviral.ttf) format("truetype");
+  }
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
