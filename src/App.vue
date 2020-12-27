@@ -22,7 +22,7 @@
   min-height: 100%;
   background-image: linear-gradient(#34A2E3, #000327);
 }
-
+  
 #nav {
   padding: 30px;
   a {

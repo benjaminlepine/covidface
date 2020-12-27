@@ -1,8 +1,10 @@
 <template>
     <div>
         <div class="starface">
+<!--            <Hourglass/>-->
             <p class="score score-ctn mb-0">SCORE: {{answerApihh.score}}</p>
-            <img class="starface--img" :src="answerApi[0].url" alt="">
+            <img class="starface--img" :src="answerApi[0].url" alt="masked star face">
+<!--            <img class="hourglass" src="../assets/hourglass.svg" alt="hourglass">-->
             <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
             <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
             <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
@@ -23,9 +25,11 @@
 <script>
     import axios from 'axios';
     import store from '../store/index.js';
+    import Hourglass from '../animations/Hourglass'
 
     export default {
         name: 'Covidgame',
+        components: { Hourglass },
         props: {
             msg: String,
             argent: String
@@ -182,6 +186,17 @@
                 //&:active{background-color: #1d6273;}
             }
         }
+
+        /*.hourglass {*/
+        /*    position: absolute;*/
+        /*    max-width: 32px;*/
+        /*    animation: rotation 3s infinite linear;*/
+        /*}*/
+
+        /*@keyframes rotation {*/
+        /*    from { transform: rotate(0deg); }*/
+        /*    to { transform: rotate(359deg); }*/
+        /*}*/
     }
     @media screen and (max-width: 450px){.starface--mask{max-width: 250px;margin-left:-125px;}}
     @media screen and (max-width: 400px){.starface--mask{max-width: 225px;margin-left:-111px;}}
