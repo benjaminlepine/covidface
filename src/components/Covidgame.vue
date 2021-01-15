@@ -2,12 +2,17 @@
     <div>
         <div class="starface">
 <!--            <Hourglass/>-->
-            <p class="score score-ctn mb-0">SCORE: {{answerApihh.score}}</p>
-            <img class="starface--img" :src="answerApi[0].url" alt="masked star face">
-<!--            <img class="hourglass" src="../assets/hourglass.svg" alt="hourglass">-->
-            <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
-            <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
-            <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
+            <p class="score score-ctn mb-0">SCORE:
+                <span v-if="!answerApihh.score || answerApihh.score === 0">0</span>
+                {{answerApihh.score}}
+            </p>
+            <div class="starface--ctn-face">
+                <img class="starface--img" :src="answerApi[0].url" alt="masked star face">
+                <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
+                <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
+                <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
+            </div>
+
             <div>
                 <div class="answers mt-1">
                     <button v-on:click="sendAnswer(answerApi[0].choices[0])" class="answers--choice">{{answerApi[0].choices[0]}}</button>
@@ -128,7 +133,6 @@
     }
     .score-ctn{
         position: absolute;
-        margin-left: 30%;
         z-index: 2;
         color: white;
     }
@@ -137,18 +141,19 @@
         position: absolute;
     }
     .starface{
-        position: relative;
+        max-width: 425px;
+        margin: 0 auto;
+        &--ctn-face{position: relative;}
         &--img{
             margin-top: 25px;
             border-radius: 25px;
-            max-width: 95%;
             max-height: 700px;
         }
         &--mask{
             position: absolute;
             left: 50%;
             margin-left: -128px;
-            top: 37%;
+            top: 43%;
             max-width: 265px;
         }
         &--aswitem{
@@ -200,8 +205,8 @@
     }
     @media screen and (max-width: 450px){.starface--mask{max-width: 250px;margin-left:-125px;}}
     @media screen and (max-width: 400px){.starface--mask{max-width: 225px;margin-left:-111px;}}
-    @media screen and (max-width: 350px){.starface--mask{max-width: 200px;margin-left:-100px;top: 35.5%;}}
-    @media screen and (max-width: 300px){.starface--mask{max-width: 165px;margin-left:-82px;top: 33.5%;}}
-    @media screen and (max-width: 250px){.starface--mask{max-width: 155px;margin-left:-82px;top: 32.5%;}}
+    @media screen and (max-width: 350px){.starface--mask{max-width: 200px;margin-left:-100px;}}
+    @media screen and (max-width: 300px){.starface--mask{max-width: 165px;margin-left:-82px;}}
+    @media screen and (max-width: 250px){.starface--mask{max-width: 155px;margin-left:-82px;}}
 
 </style>

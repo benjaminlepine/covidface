@@ -25,7 +25,7 @@
         <div>
             <p ref="usernameInput"></p>
 
-            <h1 id="countdown"></h1>
+            <h1 id="countdown">cdfsdfsdf</h1>
         </div>
     </div>
 </template>
