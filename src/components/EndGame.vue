@@ -5,6 +5,7 @@
     <div class="m-4">
       <div id="myProgress">
         <div ref="scoreBar" id="scoreBar" class="pt-2">0%</div>
+<!--        <progress ref="scoreBar" id="scoreBar" class="pt-2">0%</progress>-->
       </div>
     </div>
     <div class="m-4">

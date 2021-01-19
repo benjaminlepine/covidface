@@ -8,11 +8,11 @@
             </p>
             <div class="starface--ctn-face">
                 <img class="starface--img" :src="answerApi[0].url" alt="masked star face">
+<!--                <img class="starface&#45;&#45;img" src="../assets/Aaron-Eckhart.jpg" alt="masked star face">-->
                 <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
                 <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
                 <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
             </div>
-
             <div>
                 <div class="answers mt-1">
                     <button v-on:click="sendAnswer(answerApi[0].choices[0])" class="answers--choice">{{answerApi[0].choices[0]}}</button>
@@ -31,6 +31,7 @@
     import axios from 'axios';
     import store from '../store/index.js';
     import Hourglass from '../animations/Hourglass'
+    import * as imgwarp from '../../node_local/imgwarp.js'
 
     export default {
         name: 'Covidgame',
@@ -48,11 +49,15 @@
                 answerApi: [],
                 answerApihh: [],
                 requestOptions: {},
-                store: store
+                store: store,
             }
         },
         created(){
             this.LoadNewData();
+        },
+        mounted(){
+            //console.log("externalScript = ", imgwarp.MY_CONST);
+            //console.log("externalScript = ", imgwarp.myFoo(1,3));
         },
         methods : {
             displayAnimation(result, gameId) {
