@@ -1,20 +1,20 @@
+
+import $ from 'jquery'
+
+// export const MY_CONST = 'Vue.js';
+//
+// ImgWarper.ggg = function(){
+//     console.log("fgfgfgfgfgf");
+// }
+//
+// export function ggg(a, b) {
+//     return a + b;
+// }
+
+
 var ImgWarper = ImgWarper || {};
 
-export const MY_CONST = 'Vue.js';
-
-ImgWarper.ggg = function(){
-    console.log("fgfgfgfgfgf");
-}
-
-export function myFoo(a, b) {
-    return a + b;
-}
-
-
-
-
-ImgWarper.Warper = function(
-    imgData, optGridSize, optAlpha) {
+ImgWarper.Warper = function(imgData, optGridSize, optAlpha) {
     this.alpha = optAlpha || 1;
     this.gridSize = optGridSize || 20;
 

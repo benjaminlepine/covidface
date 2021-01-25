@@ -1,29 +1,30 @@
 <template>
     <div>
-        <div class="starface">
-<!--            <Hourglass/>-->
-            <p class="score score-ctn mb-0">SCORE:
-                <span v-if="!answerApihh.score || answerApihh.score === 0">0</span>
-                {{answerApihh.score}}
-            </p>
-            <div class="starface--ctn-face">
-                <img class="starface--img" :src="answerApi[0].url" alt="masked star face">
-<!--                <img class="starface&#45;&#45;img" src="../assets/Aaron-Eckhart.jpg" alt="masked star face">-->
-                <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
-                <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
-                <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
-            </div>
-            <div>
-                <div class="answers mt-1">
-                    <button v-on:click="sendAnswer(answerApi[0].choices[0])" class="answers--choice">{{answerApi[0].choices[0]}}</button>
-                    <button v-on:click="sendAnswer(answerApi[0].choices[1])" class="answers--choice">{{answerApi[0].choices[1]}}</button>
+                <div class="starface">
+        <!--            <Hourglass/>-->
+                    <p class="score score-ctn mb-0">SCORE:
+                        <span v-if="!answerApihh.score || answerApihh.score === 0">0</span>
+                        {{answerApihh.score}}
+                    </p>
+                    <div class="starface--ctn-face">
+                        <img class="starface--img" :src="answerApi[0].url[0]" alt="masked star face">
+        <!--                <img class="starface--img" src="../assets/Aaron-Eckhart.jpg" alt="masked star face">-->
+                        <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
+                        <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
+                        <img class="starface--aswitem" v-if="!displayMask && virus" src="../assets/virus.png" alt="">
+                    </div>
+                    <div>
+                        <div class="answers mt-1">
+                            <button v-on:click="sendAnswer(answerApi[0].choices[0])" class="answers--choice">{{answerApi[0].choices[0]}}</button>
+                            <button v-on:click="sendAnswer(answerApi[0].choices[1])" class="answers--choice">{{answerApi[0].choices[1]}}</button>
+                        </div>
+                        <div class="answers">
+                            <button v-on:click="sendAnswer(answerApi[0].choices[2])" class="answers--choice">{{answerApi[0].choices[2]}}</button>
+                            <button v-on:click="sendAnswer(answerApi[0].choices[3])" class="answers--choice">{{answerApi[0].choices[3]}}</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="answers">
-                    <button v-on:click="sendAnswer(answerApi[0].choices[2])" class="answers--choice">{{answerApi[0].choices[2]}}</button>
-                    <button v-on:click="sendAnswer(answerApi[0].choices[3])" class="answers--choice">{{answerApi[0].choices[3]}}</button>
-                </div>
-            </div>
-        </div>
+
     </div>
 </template>
 
@@ -31,7 +32,8 @@
     import axios from 'axios';
     import store from '../store/index.js';
     import Hourglass from '../animations/Hourglass'
-    import * as imgwarp from '../../node_local/imgwarp.js'
+    import * as imgwarp  from '../../node_local/imgwarp.js'
+    //import ImgWarper as ImgWarper from '../../node_local/imgwarp.js'
 
     export default {
         name: 'Covidgame',
@@ -40,7 +42,7 @@
             msg: String,
             argent: String
         },
-        //el : 'main',
+
         data: function () {
             return {
                 displayMask: true,
@@ -50,14 +52,16 @@
                 answerApihh: [],
                 requestOptions: {},
                 store: store,
+                animator: null,
+                frames: [],
+                warper: {}
             }
         },
         created(){
             this.LoadNewData();
+
         },
         mounted(){
-            //console.log("externalScript = ", imgwarp.MY_CONST);
-            //console.log("externalScript = ", imgwarp.myFoo(1,3));
         },
         methods : {
             displayAnimation(result, gameId) {
@@ -103,6 +107,7 @@
                 this.answerApi = res;
             },
             async sendAnswer(answer){
+                console.log("answerApi[0].url = ", this.answerApi[0].url);
                 var res;
                 var formdata = new FormData();
                 formdata.append("hash", this.answerApi[0].hash);
@@ -119,7 +124,7 @@
                 // Store score in global store
                 store.state.score = this.answerApihh.score;
                 this.displayAnimation(res.result, res.gameId)
-            }
+            },
         }
     }
 </script>
@@ -196,6 +201,12 @@
                 //&:active{background-color: #1d6273;}
             }
         }
+
+
+        // Broken imgwarp css class
+        .img {display: inline-block;}
+        .frames img {width: 164px;}
+
 
         /*.hourglass {*/
         /*    position: absolute;*/

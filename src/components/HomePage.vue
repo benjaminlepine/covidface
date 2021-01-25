@@ -1,6 +1,6 @@
 <template>
     <div class="home-ctn pt-3">
-        <Hourglass/>
+<!--        <Hourglass/>-->
         <img class="home-macron" src="../assets/macron.png" alt="">
         <h1 class="home-title mt-4">COVID-FACE</h1>
         <div class="home-subtitle">

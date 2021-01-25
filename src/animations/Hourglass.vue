@@ -1,6 +1,5 @@
 <template>
     <div class="d-flex">
-
         <svg class="hourglass" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
             <defs>
                 <clipPath id="hourglass">
@@ -24,7 +23,6 @@
         </svg>
         <div>
             <p ref="usernameInput"></p>
-
             <h1 id="countdown">cdfsdfsdf</h1>
         </div>
     </div>
@@ -44,7 +42,6 @@
             startime(){
                 let timeleft = 10;
                 let downloadTimer = setInterval(function(){
-
                     if(timeleft <= 0){
                         clearInterval(downloadTimer);
                         this.$refs.usernameInput.innerHTML = "Finished";
@@ -57,8 +54,6 @@
 
                 }, 1000);
                 timeleft --;
-
-
                 //setTimeout(function () { this.time++; }.bind(this), 1000);
             }
         }
