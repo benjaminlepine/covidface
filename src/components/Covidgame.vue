@@ -7,7 +7,11 @@
                         {{answerApihh.score}}
                     </p>
                     <div class="starface--ctn-face">
-                        <img class="starface--img" :src="answerApi[0].url[0]" alt="masked star face">
+                        <img class="starface--img" :src="answerApi[0].url[0]" alt="masked star face" @load="onFirstImageLoad">
+                        <img class="starface--img starface--img--hide" :src="answerApi[0].url[1]" alt="masked star face" @load="onSecondImageLoad">
+                        <canvas v-if="answerApi[0]" class="starface--morphing starface--morphing--hide" ref="canvas1" height="702" width="425" />
+                        <canvas v-if="answerApi[0]" class="starface--morphing starface--morphing--hide" ref="canvas2" height="702" width="425" />
+                        <canvas v-if="answerApi[0]" class="starface--morphing" ref="result" height="702" width="425" />
         <!--                <img class="starface--img" src="../assets/Aaron-Eckhart.jpg" alt="masked star face">-->
                         <img class="starface--mask" v-if="displayMask" src="../assets/mask.png" alt="">
                         <img class="starface--aswitem" v-if="!displayMask && seringue" src="../assets/seringue.png" alt="">
@@ -32,8 +36,6 @@
     import axios from 'axios';
     import store from '../store/index.js';
     import Hourglass from '../animations/Hourglass'
-    import * as imgwarp  from '../../node_local/imgwarp.js'
-    //import ImgWarper as ImgWarper from '../../node_local/imgwarp.js'
 
     export default {
         name: 'Covidgame',
@@ -72,6 +74,7 @@
                 }
                 if(result){
                     this.seringue = true;
+                    this.draw();
                     setTimeout(function () { this.seringue = false; }.bind(this), 800);
                 }
                 setTimeout(function () {
@@ -82,6 +85,119 @@
 
             loadEndgame(){
                 this.$router.push('/EndGame');
+            },
+
+            onFirstImageLoad(event){
+                const img = event.target;
+                img.crossOrigin = "Anonymous";
+                const target = "canvas1";
+                const canvas = this.$refs[target];
+                this.loadImage(target, canvas, img);
+                const points = [
+                    { x: 0, y: 0 },
+                    { x: 425, y: 0 },
+                    { x: 0, y: 702 },
+                    { x: 425, y: 702 },
+                    { x: 75, y: 400 },
+                    { x: 355, y: 400 },
+                    { x: 155, y: 608 },
+                    { x: 280, y: 608 },
+                    { x: 212, y: 125 },
+                    { x: 212, y: 238 },
+                    { x: 212, y: 342 },
+                    { x: 212, y: 485 },
+                    { x: 148, y: 295 },
+                    { x: 284, y: 295 },
+                    { x: 147, y: 409 },
+                    { x: 276, y: 409 },
+                    { x: 168, y: 392 },
+                    { x: 255, y: 392 },
+                    { x: 212, y: 445 },
+                ];
+                for (let x = 0; x < points.length; x++) {
+                    points[x] = new ImgWarper.Point(points[x].x, points[x].y);
+                }
+                this.warper[target].oriPoints = points;
+                this.warper[target].dstPoints = points;
+            },
+
+            onSecondImageLoad(event) {
+                const img = event.target;
+                img.crossOrigin = "Anonymous";
+                const target = "canvas2";
+                const canvas = this.$refs[target];
+                this.loadImage(target, canvas, img);
+                const points = [
+                    { x: 0, y: 0 },
+                    { x: 425, y: 0 },
+                    { x: 0, y: 702 },
+                    { x: 425, y: 702 },
+                    { x: 75, y: 400 },
+                    { x: 355, y: 400 },
+                    { x: 155, y: 608 },
+                    { x: 280, y: 608 },
+                    { x: 212, y: 125 },
+                    { x: 212, y: 238 },
+                    { x: 212, y: 342 },
+                    { x: 212, y: 485 },
+                    { x: 148, y: 295 },
+                    { x: 284, y: 295 },
+                    { x: 135, y: 394 },
+                    { x: 288, y: 395 },
+                    { x: 167, y: 379 },
+                    { x: 258, y: 380 },
+                    { x: 212, y: 437 },
+                ];
+                for (let x = 0; x < points.length; x++) {
+                    points[x] = new ImgWarper.Point(points[x].x, points[x].y);
+                }
+                this.warper[target].oriPoints = points;
+                this.warper[target].dstPoints = points;
+                this.animator = new ImgWarper.Animator(
+                    this.warper["canvas1"],
+                    this.warper["canvas2"]
+                );
+                this.animator.generate(7);
+                this.frames = this.animator.frames;
+                this.frames.push(
+                    canvas.getContext("2d").getImageData(0, 0, img.width, img.height)
+                );
+            },
+
+            loadImage(target, canvas, img) {
+                const ratio = canvas.width / img.width; // set canvas size big enough for the image
+                canvas.height = img.height * ratio;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(
+                    img,
+                    0,
+                    0,
+                    img.width,
+                    img.height,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+                img.width = canvas.width;
+                img.height = canvas.height;
+                const imageData = ctx.getImageData(0, 0, img.width, img.height);
+                if (this.warper[target]) delete this.warper[target];
+                this.warper[target] = new ImgWarper.PointDefiner(canvas, img, imageData);
+            },
+
+            draw() {
+                function myLoop(frames, context, i) {
+                    setTimeout(() => {
+                    context.putImageData(frames[i], 0, 0);
+                    if (i < frames.length - 1) {
+                        myLoop(frames, context, i + 1);
+                    }
+                    }, 40);
+                }
+
+                const context = this.$refs.result.getContext("2d");
+                myLoop(this.frames, context, 0);
             },
 
             async LoadNewData(gameId){
@@ -157,7 +273,13 @@
         &--img{
             margin-top: 25px;
             border-radius: 25px;
-            max-height: 700px;
+            height: 702px;
+            width: 425px;
+
+            &--hide{
+                z-index: -1;
+                position: absolute;
+            }
         }
         &--mask{
             position: absolute;
@@ -199,6 +321,15 @@
                     //background-color: #2694ab;
                 }
                 //&:active{background-color: #1d6273;}
+            }
+        }
+        &--morphing{
+            position: absolute;
+            top: 25px;
+            left: 0;
+
+            &--hide{
+                display: none;
             }
         }
 
