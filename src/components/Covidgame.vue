@@ -9,7 +9,7 @@
       <div class="starface--ctn-face">
         <img
           class="starface--img"
-          :src="answerApi[0].url[0]"
+          :src="answerApi.url[0]"
           alt="masked star face"
           @load="onFirstImageLoad"
         />
@@ -20,21 +20,18 @@
           @load="onSecondImageLoad"
         />
         <canvas
-          v-if="answerApi[0]"
           class="starface--morphing starface--morphing--hide"
           ref="canvas1"
           height="702"
           width="425"
         />
         <canvas
-          v-if="answerApi[0]"
           class="starface--morphing starface--morphing--hide"
           ref="canvas2"
           height="702"
           width="425"
         />
         <canvas
-          v-if="answerApi[0]"
           class="starface--morphing"
           ref="result"
           height="702"
@@ -62,30 +59,30 @@
       <div>
         <div class="answers mt-1">
           <button
-            v-on:click="sendAnswer(answerApi[0].choices[0])"
+            v-on:click="sendAnswer(answerApi.choices[0])"
             class="answers--choice"
           >
-            {{ answerApi[0].choices[0] }}
+            {{ answerApi.choices[0] }}
           </button>
           <button
-            v-on:click="sendAnswer(answerApi[0].choices[1])"
+            v-on:click="sendAnswer(answerApi.choices[1])"
             class="answers--choice"
           >
-            {{ answerApi[0].choices[1] }}
+            {{ answerApi.choices[1] }}
           </button>
         </div>
         <div class="answers">
           <button
-            v-on:click="sendAnswer(answerApi[0].choices[2])"
+            v-on:click="sendAnswer(answerApi.choices[2])"
             class="answers--choice"
           >
-            {{ answerApi[0].choices[2] }}
+            {{ answerApi.choices[2] }}
           </button>
           <button
-            v-on:click="sendAnswer(answerApi[0].choices[3])"
+            v-on:click="sendAnswer(answerApi.choices[3])"
             class="answers--choice"
           >
-            {{ answerApi[0].choices[3] }}
+            {{ answerApi.choices[3] }}
           </button>
         </div>
       </div>
@@ -110,7 +107,7 @@ export default {
       displayMask: true,
       virus: false,
       seringue: false,
-      answerApi: [],
+      answerApi: { choices: [], url: [] },
       answerApihh: [],
       requestOptions: {},
       store: store,
@@ -280,20 +277,20 @@ export default {
       await axios
         .get("http://service.covid-face.com/face", params)
         .then((response) => {
-          res = response.data;
-          if (res[0].game_end) {
+          res = response.data[0];
+          this.answerApi = res;
+          if (res.game_end) {
             this.loadEndgame();
           }
         })
         .catch((error) => {});
-      this.answerApi = res;
     },
     async sendAnswer(answer) {
       var res;
       var formdata = new FormData();
-      formdata.append("hash", this.answerApi[0].hash);
+      formdata.append("hash", this.answerApi.hash);
       formdata.append("response", answer);
-      formdata.append("gameId", this.answerApi[0].gameId);
+      formdata.append("gameId", this.answerApi.gameId);
 
       await axios
         .post("http://service.covid-face.com/face", formdata)
