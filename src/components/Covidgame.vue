@@ -11,13 +11,6 @@
           class="starface--img"
           :src="answerApi.url[0]"
           alt="masked star face"
-          @load="onFirstImageLoad"
-        />
-        <img
-          class="starface--img starface--img--hide"
-          :src="answerApi[0].url[1]"
-          alt="masked star face"
-          @load="onSecondImageLoad"
         />
         <canvas
           class="starface--morphing starface--morphing--hide"
@@ -28,6 +21,12 @@
         <canvas
           class="starface--morphing starface--morphing--hide"
           ref="canvas2"
+          height="702"
+          width="425"
+        />
+        <canvas
+          class="starface--morphing starface--morphing--hide"
+          ref="canvas3"
           height="702"
           width="425"
         />
@@ -95,6 +94,50 @@ import axios from "axios";
 import store from "../store/index.js";
 import Hourglass from "../animations/Hourglass";
 
+const originalImagePoints = [
+  { x: 0, y: 0 },
+  { x: 425, y: 0 },
+  { x: 0, y: 702 },
+  { x: 425, y: 702 },
+  { x: 75, y: 400 },
+  { x: 355, y: 400 },
+  { x: 155, y: 608 },
+  { x: 280, y: 608 },
+  { x: 212, y: 125 },
+  { x: 212, y: 238 },
+  { x: 212, y: 342 },
+  { x: 212, y: 485 },
+  { x: 148, y: 295 },
+  { x: 284, y: 295 },
+  { x: 147, y: 409 },
+  { x: 276, y: 409 },
+  { x: 168, y: 392 },
+  { x: 255, y: 392 },
+  { x: 212, y: 445 },
+];
+
+const modifiedImagePoints = [
+  { x: 0, y: 0 },
+  { x: 425, y: 0 },
+  { x: 0, y: 702 },
+  { x: 425, y: 702 },
+  { x: 75, y: 400 },
+  { x: 355, y: 400 },
+  { x: 155, y: 608 },
+  { x: 280, y: 608 },
+  { x: 212, y: 125 },
+  { x: 212, y: 238 },
+  { x: 212, y: 342 },
+  { x: 212, y: 485 },
+  { x: 148, y: 295 },
+  { x: 284, y: 295 },
+  { x: 135, y: 394 },
+  { x: 288, y: 395 },
+  { x: 167, y: 379 },
+  { x: 258, y: 380 },
+  { x: 212, y: 437 },
+];
+
 export default {
   name: "Covidgame",
   components: { Hourglass },
@@ -111,9 +154,13 @@ export default {
       answerApihh: [],
       requestOptions: {},
       store: store,
-      animator: null,
       frames: [],
       warper: {},
+      images: {
+        canvas1: null,
+        canvas2: null,
+        canvas3: null,
+      },
     };
   },
   created() {
@@ -125,6 +172,7 @@ export default {
       this.displayMask = false;
       if (!result) {
         this.virus = true;
+        this.draw(false);
         setTimeout(
           function () {
             this.virus = false;
@@ -134,7 +182,7 @@ export default {
       }
       if (result) {
         this.seringue = true;
-        this.draw();
+        this.draw(true);
         setTimeout(
           function () {
             this.seringue = false;
@@ -153,82 +201,66 @@ export default {
     loadEndgame() {
       this.$router.push("/EndGame");
     },
-    onFirstImageLoad(event) {
-      const img = event.target;
-      img.crossOrigin = "Anonymous";
-      const target = "canvas1";
-      const canvas = this.$refs[target];
-      this.loadImage(target, canvas, img);
-      const points = [
-        { x: 0, y: 0 },
-        { x: 425, y: 0 },
-        { x: 0, y: 702 },
-        { x: 425, y: 702 },
-        { x: 75, y: 400 },
-        { x: 355, y: 400 },
-        { x: 155, y: 608 },
-        { x: 280, y: 608 },
-        { x: 212, y: 125 },
-        { x: 212, y: 238 },
-        { x: 212, y: 342 },
-        { x: 212, y: 485 },
-        { x: 148, y: 295 },
-        { x: 284, y: 295 },
-        { x: 147, y: 409 },
-        { x: 276, y: 409 },
-        { x: 168, y: 392 },
-        { x: 255, y: 392 },
-        { x: 212, y: 445 },
-      ];
-      for (let x = 0; x < points.length; x++) {
-        points[x] = new ImgWarper.Point(points[x].x, points[x].y);
-      }
-      this.warper[target].oriPoints = points;
-      this.warper[target].dstPoints = points;
+    clearCanvas() {
+      const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
+      canvasList.forEach((target) => {
+        const canvas = this.$refs[target];
+        if (canvas) {
+          canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        }
+        this.images[target] = null;
+      });
     },
-    onSecondImageLoad(event) {
-      const img = event.target;
-      img.crossOrigin = "Anonymous";
-      const target = "canvas2";
-      const canvas = this.$refs[target];
-      this.loadImage(target, canvas, img);
-      const points = [
-        { x: 0, y: 0 },
-        { x: 425, y: 0 },
-        { x: 0, y: 702 },
-        { x: 425, y: 702 },
-        { x: 75, y: 400 },
-        { x: 355, y: 400 },
-        { x: 155, y: 608 },
-        { x: 280, y: 608 },
-        { x: 212, y: 125 },
-        { x: 212, y: 238 },
-        { x: 212, y: 342 },
-        { x: 212, y: 485 },
-        { x: 148, y: 295 },
-        { x: 284, y: 295 },
-        { x: 135, y: 394 },
-        { x: 288, y: 395 },
-        { x: 167, y: 379 },
-        { x: 258, y: 380 },
-        { x: 212, y: 437 },
-      ];
-      for (let x = 0; x < points.length; x++) {
-        points[x] = new ImgWarper.Point(points[x].x, points[x].y);
-      }
-      this.warper[target].oriPoints = points;
-      this.warper[target].dstPoints = points;
-      this.animator = new ImgWarper.Animator(
+    loadImage(url) {
+      return new Promise((resolve) => {
+        let img = new Image();
+        img.addEventListener("load", () => {
+          resolve(img);
+        });
+        img.src = url;
+        img.crossOrigin = "Anonymous";
+      });
+    },
+    onImageLoad(imgSrc, target, defaultPoints, callback) {
+      this.loadImage(imgSrc).then((img) => {
+        this.images[target] = img;
+        this.drawImageInCanvas(target, img);
+        let points = [];
+        for (let i = 0; i < defaultPoints.length; i++) {
+          points.push(
+            new ImgWarper.Point(
+              originalImagePoints[i].x,
+              originalImagePoints[i].y
+            )
+          );
+        }
+        this.warper[target].oriPoints = points;
+        this.warper[target].dstPoints = points;
+        if (callback) {
+          callback();
+        }
+      });
+    },
+    generateFrames(target) {
+      const animator = new ImgWarper.Animator(
         this.warper["canvas1"],
-        this.warper["canvas2"]
+        this.warper[target]
       );
-      this.animator.generate(7);
-      this.frames = this.animator.frames;
+      animator.generate(7);
+      this.frames = animator.frames;
       this.frames.push(
-        canvas.getContext("2d").getImageData(0, 0, img.width, img.height)
+        this.$refs[target]
+          .getContext("2d")
+          .getImageData(
+            0,
+            0,
+            this.images[target].width,
+            this.images[target].height
+          )
       );
     },
-    loadImage(target, canvas, img) {
+    drawImageInCanvas(target, img) {
+      const canvas = this.$refs[target];
       const ratio = canvas.width / img.width; // set canvas size big enough for the image
       canvas.height = img.height * ratio;
       const ctx = canvas.getContext("2d");
@@ -249,7 +281,7 @@ export default {
       if (this.warper[target]) delete this.warper[target];
       this.warper[target] = new ImgWarper.PointDefiner(canvas, img, imageData);
     },
-    draw() {
+    draw(success) {
       function myLoop(frames, context, i) {
         setTimeout(() => {
           context.putImageData(frames[i], 0, 0);
@@ -258,12 +290,13 @@ export default {
           }
         }, 40);
       }
-
+      this.generateFrames(success ? "canvas2" : "canvas3");
       const context = this.$refs.result.getContext("2d");
       myLoop(this.frames, context, 0);
     },
     async LoadNewData(gameId) {
       var res;
+      this.clearCanvas();
 
       if (gameId != undefined) {
         var params = {
@@ -281,6 +314,22 @@ export default {
           this.answerApi = res;
           if (res.game_end) {
             this.loadEndgame();
+          } else {
+            this.onImageLoad(
+              this.answerApi.url[0],
+              "canvas1",
+              originalImagePoints
+            );
+            this.onImageLoad(
+              this.answerApi.url[1],
+              "canvas2",
+              modifiedImagePoints
+            );
+            this.onImageLoad(
+              this.answerApi.url[2],
+              "canvas3",
+              modifiedImagePoints
+            );
           }
         })
         .catch((error) => {});
