@@ -174,6 +174,9 @@ const modifiedImagePoints = [
   { x: 212, y: 437 },
 ];
 
+const IMAGE_WIDTH = 425;
+const IMAGE_HEIGHT = 702;
+
 export default {
   name: "Covidgame",
   components: { Hourglass },
@@ -190,13 +193,7 @@ export default {
       answerApihh: [],
       requestOptions: {},
       store: store,
-      frames: [],
-      warper: {},
-      images: {
-        canvas1: null,
-        canvas2: null,
-        canvas3: null,
-      },
+      pointDefiners: {},
     };
   },
   created() {
@@ -244,7 +241,6 @@ export default {
         if (canvas) {
           canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         }
-        this.images[target] = null;
       });
     },
     loadImage(url) {
@@ -257,65 +253,39 @@ export default {
         img.crossOrigin = "Anonymous";
       });
     },
-    onImageLoad(imgSrc, target, defaultPoints, callback) {
+    onImageLoad(imgSrc, target, defaultPoints) {
       this.loadImage(imgSrc).then((img) => {
-        this.images[target] = img;
-        this.drawImageInCanvas(target, img);
-        let points = [];
+        const canvas = this.$refs[target];
+        const context = canvas.getContext("2d");
+        context.drawImage(img, 0, 0);
+        let oriPoints = [];
         for (let i = 0; i < defaultPoints.length; i++) {
-          points.push(
+          oriPoints.push(
             new ImgWarper.Point(
               originalImagePoints[i].x,
               originalImagePoints[i].y
             )
           );
         }
-        this.warper[target].oriPoints = points;
-        this.warper[target].dstPoints = points;
-        if (callback) {
-          callback();
-        }
+        this.pointDefiners[target] = {
+          imgData: context.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT),
+          oriPoints,
+        };
       });
     },
     generateFrames(target) {
       const animator = new ImgWarper.Animator(
-        this.warper["canvas1"],
-        this.warper[target]
+        this.pointDefiners["canvas1"],
+        this.pointDefiners[target]
       );
       animator.generate(7);
-      this.frames = animator.frames;
-      this.frames.push(
+      let frames = animator.frames;
+      frames.push(
         this.$refs[target]
           .getContext("2d")
-          .getImageData(
-            0,
-            0,
-            this.images[target].width,
-            this.images[target].height
-          )
+          .getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
       );
-    },
-    drawImageInCanvas(target, img) {
-      const canvas = this.$refs[target];
-      const ratio = canvas.width / img.width; // set canvas size big enough for the image
-      canvas.height = img.height * ratio;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        img.width,
-        img.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-      img.width = canvas.width;
-      img.height = canvas.height;
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
-      if (this.warper[target]) delete this.warper[target];
-      this.warper[target] = new ImgWarper.PointDefiner(canvas, img, imageData);
+      return frames;
     },
     draw(success) {
       function myLoop(frames, context, i) {
@@ -326,9 +296,9 @@ export default {
           }
         }, 40);
       }
-      this.generateFrames(success ? "canvas2" : "canvas3");
+      const frames = this.generateFrames(success ? "canvas2" : "canvas3");
       const context = this.$refs.result.getContext("2d");
-      myLoop(this.frames, context, 0);
+      myLoop(frames, context, 0);
     },
     async LoadNewData(gameId) {
       var res;
