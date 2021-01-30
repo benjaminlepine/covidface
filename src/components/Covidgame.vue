@@ -442,6 +442,7 @@ $answer-color: #279a39;
     position: absolute;
     top: 25px;
     left: 0;
+    border-radius: 25px;
 
     &--hide {
       display: none;
