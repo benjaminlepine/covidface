@@ -170,10 +170,10 @@ ImgWarper.BilinearInterpolation.prototype.fill = function (
         srcY < 0 ||
         srcY > this.height - 1
       ) {
-        this.imgTargetData.data[index] = 255;
-        this.imgTargetData.data[index + 1] = 255;
-        this.imgTargetData.data[index + 2] = 255;
-        this.imgTargetData.data[index + 3] = 255;
+        this.imgTargetData.data[index] = 0;
+        this.imgTargetData.data[index + 1] = 0;
+        this.imgTargetData.data[index + 2] = 0;
+        this.imgTargetData.data[index + 3] = 0;
         continue;
       }
       var srcX1 = Math.floor(srcX);
