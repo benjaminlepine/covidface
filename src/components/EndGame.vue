@@ -10,8 +10,8 @@
         <!--        <progress ref="scoreBar" id="scoreBar" class="pt-2">0%</progress>-->
       </div>
     </div>
-    <div class="m-4">
-      <img class="home-macron mb-5" src="../assets/macron.png" />
+    <img class="home-macron mb-4" src="../assets/macron.png" />
+    <div class="score-links m-3">
       <router-link to="/Covidgame" class="btn covid-btn covid-btn--start w-100"
         >Nouvelle partie</router-link
       >
@@ -41,7 +41,6 @@ export default {
       if (i === 0) {
         i = 1;
         var scoreBar = this.$refs.scoreBar;
-        var scoreText = this.$refs.scoreText;
         var width = this.score;
         var id = setInterval(frame, 15);
         function frame() {
@@ -89,18 +88,39 @@ export default {
 @import "../style";
 .score {
   &-ctn {
-    min-height: 1000px;
+    max-height: 100vh;
+    padding: 1em;
+    font-size: 16px;
+
+    @media screen and (max-height: 620px) {
+      font-size: 12px;
+    }
   }
+
   &-title {
-    padding-top: 50px;
     color: white;
     font-family: Coronaviral;
-    font-size: 35px;
+    font-size: 2.5em;
   }
+
   &-result {
     color: #ffd212;
     font-family: Coronaviral;
-    font-size: 55px;
+    font-size: 4em;
+  }
+
+  &-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.home-macron {
+  max-width: 100%;
+
+  @media screen and (max-height: 680px) {
+    width: 40%;
   }
 }
 
@@ -116,9 +136,5 @@ export default {
   text-align: center;
   line-height: 30px;
   color: white;
-}
-
-.bar-ctn {
-  //margin: 0 20px;
 }
 </style>

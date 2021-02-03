@@ -1,15 +1,23 @@
-.covid-btn{
-  padding: 14px;
-  min-width: 330px;
+.covid-btn {
+  padding: 0.8em;
+  max-width: 330px;
   font-weight: bold;
-  &:hover{opacity: 0.7}
-  &--start{
-    color: #00044B;
-    background-color: #BADAFB;
+  font-size: 1.2em;
+
+  &:hover {
+    opacity: 0.7;
   }
-  &--cancel{
-    border: solid 2px #BADAFB;
-    color: #BADAFB;
-    &:hover{color: #BADAFB;};
+
+  &--start {
+    color: #00044b;
+    background-color: #badafb;
+  }
+
+  &--cancel {
+    border: solid 2px #badafb;
+    color: #badafb;
+    &:hover {
+      color: #badafb;
+    }
   }
 }
