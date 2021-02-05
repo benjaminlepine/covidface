@@ -78,14 +78,14 @@ export default {
     };
   },
   created() {
-    this.LoadNewData();
+    this.loadNewData();
   },
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
       this.draw(result);
       setTimeout(() => {
-        this.LoadNewData(gameId);
+        this.loadNewData(gameId);
       }, 800);
     },
     clearCanvas() {
@@ -154,7 +154,7 @@ export default {
       const context = this.$refs.result.getContext("2d");
       myLoop(frames, context, 0);
     },
-    async LoadNewData(gameId) {
+    async loadNewData(gameId) {
       var res;
       this.clearCanvas();
 
