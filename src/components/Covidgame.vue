@@ -60,8 +60,6 @@
 <script>
 import axios from "axios";
 import store from "../store/index.js";
-import Hourglass from "../animations/Hourglass";
-
 import {
   originalImagePoints,
   modifiedImagePoints,
@@ -71,11 +69,6 @@ import {
 
 export default {
   name: "Covidgame",
-  components: { Hourglass },
-  props: {
-    msg: String,
-    argent: String,
-  },
   data: function () {
     return {
       displayMask: true,
@@ -87,7 +80,6 @@ export default {
   created() {
     this.LoadNewData();
   },
-  mounted() {},
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
@@ -95,9 +87,6 @@ export default {
       setTimeout(() => {
         this.LoadNewData(gameId);
       }, 800);
-    },
-    loadEndgame() {
-      this.$router.push("/EndGame");
     },
     clearCanvas() {
       const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
@@ -184,7 +173,7 @@ export default {
           res = response.data[0];
           this.imageData = res;
           if (res.game_end) {
-            this.loadEndgame();
+            this.$router.push("/EndGame");
           } else {
             this.onImageLoad(
               this.imageData.url[0],
