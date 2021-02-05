@@ -1,16 +1,17 @@
 <template>
   <div>
-    <div class="starface">
-      <p class="score score-ctn mb-0">
+    <div class="covidgame">
+      <p class="score mb-0">
         SCORE:
-        <span v-if="!answerApihh.score || answerApihh.score === 0">0</span>
-        {{ answerApihh.score }}
+        <span v-if="!score || score === 0">0</span>
+        {{ score }}
       </p>
-      <div class="starface--ctn-face">
+      <div class="starface">
         <img
-          class="starface--img"
-          :src="answerApi.url[0]"
-          alt="masked star face"
+          class="starface--mask"
+          v-if="displayMask"
+          src="../assets/mask.png"
+          alt="mask"
         />
         <canvas
           class="starface--morphing starface--morphing--hide"
@@ -37,53 +38,20 @@
           width="425"
         />
         <img
-          class="starface--mask"
-          v-if="displayMask"
-          src="../assets/mask.png"
-          alt=""
-        />
-        <img
-          class="starface--aswitem"
-          v-if="!displayMask && seringue"
-          src="../assets/seringue.png"
-          alt=""
-        />
-        <img
-          class="starface--aswitem"
-          v-if="!displayMask && virus"
-          src="../assets/virus.png"
-          alt=""
+          class="starface--img"
+          :src="imageData.url[0]"
+          alt="masked star face"
         />
       </div>
-      <div>
-        <div class="answers mt-1">
-          <button
-            v-on:click="sendAnswer(answerApi.choices[0])"
-            class="answers--choice"
-          >
-            {{ answerApi.choices[0] }}
-          </button>
-          <button
-            v-on:click="sendAnswer(answerApi.choices[1])"
-            class="answers--choice"
-          >
-            {{ answerApi.choices[1] }}
-          </button>
-        </div>
-        <div class="answers">
-          <button
-            v-on:click="sendAnswer(answerApi.choices[2])"
-            class="answers--choice"
-          >
-            {{ answerApi.choices[2] }}
-          </button>
-          <button
-            v-on:click="sendAnswer(answerApi.choices[3])"
-            class="answers--choice"
-          >
-            {{ answerApi.choices[3] }}
-          </button>
-        </div>
+      <div class="answers">
+        <button
+          v-on:click="sendAnswer(choice)"
+          class="answers--choice"
+          v-for="(choice, index) in imageData.choices"
+          :key="index"
+        >
+          {{ choice }}
+        </button>
       </div>
     </div>
   </div>
@@ -96,9 +64,27 @@ import Hourglass from "../animations/Hourglass";
 
 const originalImagePoints = [
   { x: 0, y: 0 },
-  { x: 425, y: 0 },
+  { x: 0, y: 117 },
+  { x: 0, y: 234 },
+  { x: 0, y: 351 },
+  { x: 0, y: 468 },
+  { x: 0, y: 585 },
   { x: 0, y: 702 },
+  { x: 85, y: 0 },
+  { x: 170, y: 0 },
+  { x: 255, y: 0 },
+  { x: 340, y: 0 },
+  { x: 425, y: 0 },
+  { x: 425, y: 117 },
+  { x: 425, y: 234 },
+  { x: 425, y: 351 },
+  { x: 425, y: 468 },
+  { x: 425, y: 585 },
   { x: 425, y: 702 },
+  { x: 85, y: 702 },
+  { x: 170, y: 702 },
+  { x: 255, y: 702 },
+  { x: 340, y: 702 },
   { x: 75, y: 400 },
   { x: 355, y: 400 },
   { x: 155, y: 608 },
@@ -118,9 +104,27 @@ const originalImagePoints = [
 
 const modifiedImagePoints = [
   { x: 0, y: 0 },
-  { x: 425, y: 0 },
+  { x: 0, y: 117 },
+  { x: 0, y: 234 },
+  { x: 0, y: 351 },
+  { x: 0, y: 468 },
+  { x: 0, y: 585 },
   { x: 0, y: 702 },
+  { x: 85, y: 0 },
+  { x: 170, y: 0 },
+  { x: 255, y: 0 },
+  { x: 340, y: 0 },
+  { x: 425, y: 0 },
+  { x: 425, y: 117 },
+  { x: 425, y: 234 },
+  { x: 425, y: 351 },
+  { x: 425, y: 468 },
+  { x: 425, y: 585 },
   { x: 425, y: 702 },
+  { x: 85, y: 702 },
+  { x: 170, y: 702 },
+  { x: 255, y: 702 },
+  { x: 340, y: 702 },
   { x: 75, y: 400 },
   { x: 355, y: 400 },
   { x: 155, y: 608 },
@@ -138,6 +142,9 @@ const modifiedImagePoints = [
   { x: 212, y: 437 },
 ];
 
+const IMAGE_WIDTH = 425;
+const IMAGE_HEIGHT = 702;
+
 export default {
   name: "Covidgame",
   components: { Hourglass },
@@ -148,19 +155,9 @@ export default {
   data: function () {
     return {
       displayMask: true,
-      virus: false,
-      seringue: false,
-      answerApi: { choices: [], url: [] },
-      answerApihh: [],
-      requestOptions: {},
-      store: store,
-      frames: [],
-      warper: {},
-      images: {
-        canvas1: null,
-        canvas2: null,
-        canvas3: null,
-      },
+      imageData: { choices: [], url: [] },
+      score: null,
+      pointDefiners: {},
     };
   },
   created() {
@@ -170,33 +167,10 @@ export default {
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
-      if (!result) {
-        this.virus = true;
-        this.draw(false);
-        setTimeout(
-          function () {
-            this.virus = false;
-          }.bind(this),
-          800
-        );
-      }
-      if (result) {
-        this.seringue = true;
-        this.draw(true);
-        setTimeout(
-          function () {
-            this.seringue = false;
-          }.bind(this),
-          800
-        );
-      }
-      setTimeout(
-        function () {
-          this.displayMask = true;
-          this.LoadNewData(gameId);
-        }.bind(this),
-        800
-      );
+      this.draw(result);
+      setTimeout(() => {
+        this.LoadNewData(gameId);
+      }, 800);
     },
     loadEndgame() {
       this.$router.push("/EndGame");
@@ -208,7 +182,6 @@ export default {
         if (canvas) {
           canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
         }
-        this.images[target] = null;
       });
     },
     loadImage(url) {
@@ -221,65 +194,39 @@ export default {
         img.crossOrigin = "Anonymous";
       });
     },
-    onImageLoad(imgSrc, target, defaultPoints, callback) {
+    onImageLoad(imgSrc, target, defaultPoints) {
       this.loadImage(imgSrc).then((img) => {
-        this.images[target] = img;
-        this.drawImageInCanvas(target, img);
-        let points = [];
+        const canvas = this.$refs[target];
+        const context = canvas.getContext("2d");
+        context.drawImage(img, 0, 0);
+        let oriPoints = [];
         for (let i = 0; i < defaultPoints.length; i++) {
-          points.push(
+          oriPoints.push(
             new ImgWarper.Point(
               originalImagePoints[i].x,
               originalImagePoints[i].y
             )
           );
         }
-        this.warper[target].oriPoints = points;
-        this.warper[target].dstPoints = points;
-        if (callback) {
-          callback();
-        }
+        this.pointDefiners[target] = {
+          imgData: context.getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT),
+          oriPoints,
+        };
       });
     },
     generateFrames(target) {
       const animator = new ImgWarper.Animator(
-        this.warper["canvas1"],
-        this.warper[target]
+        this.pointDefiners["canvas1"],
+        this.pointDefiners[target]
       );
       animator.generate(7);
-      this.frames = animator.frames;
-      this.frames.push(
+      let frames = animator.frames;
+      frames.push(
         this.$refs[target]
           .getContext("2d")
-          .getImageData(
-            0,
-            0,
-            this.images[target].width,
-            this.images[target].height
-          )
+          .getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
       );
-    },
-    drawImageInCanvas(target, img) {
-      const canvas = this.$refs[target];
-      const ratio = canvas.width / img.width; // set canvas size big enough for the image
-      canvas.height = img.height * ratio;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(
-        img,
-        0,
-        0,
-        img.width,
-        img.height,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-      img.width = canvas.width;
-      img.height = canvas.height;
-      const imageData = ctx.getImageData(0, 0, img.width, img.height);
-      if (this.warper[target]) delete this.warper[target];
-      this.warper[target] = new ImgWarper.PointDefiner(canvas, img, imageData);
+      return frames;
     },
     draw(success) {
       function myLoop(frames, context, i) {
@@ -290,9 +237,9 @@ export default {
           }
         }, 40);
       }
-      this.generateFrames(success ? "canvas2" : "canvas3");
+      const frames = this.generateFrames(success ? "canvas2" : "canvas3");
       const context = this.$refs.result.getContext("2d");
-      myLoop(this.frames, context, 0);
+      myLoop(frames, context, 0);
     },
     async LoadNewData(gameId) {
       var res;
@@ -311,35 +258,38 @@ export default {
         .get("http://service.covid-face.com/face", params)
         .then((response) => {
           res = response.data[0];
-          this.answerApi = res;
+          this.imageData = res;
           if (res.game_end) {
             this.loadEndgame();
           } else {
             this.onImageLoad(
-              this.answerApi.url[0],
+              this.imageData.url[0],
               "canvas1",
               originalImagePoints
             );
             this.onImageLoad(
-              this.answerApi.url[1],
+              this.imageData.url[1],
               "canvas2",
               modifiedImagePoints
             );
             this.onImageLoad(
-              this.answerApi.url[2],
+              this.imageData.url[2],
               "canvas3",
               modifiedImagePoints
             );
+            this.displayMask = true;
           }
         })
-        .catch((error) => {});
+        .catch((error) => {
+          console.error(error);
+        });
     },
     async sendAnswer(answer) {
       var res;
       var formdata = new FormData();
-      formdata.append("hash", this.answerApi.hash);
+      formdata.append("hash", this.imageData.hash);
       formdata.append("response", answer);
-      formdata.append("gameId", this.answerApi.gameId);
+      formdata.append("gameId", this.imageData.gameId);
 
       await axios
         .post("http://service.covid-face.com/face", formdata)
@@ -349,9 +299,9 @@ export default {
         .catch((error) => {
           console.error(error);
         });
-      this.answerApihh = res;
+      this.score = res.score;
       // Store score in global store
-      store.state.score = this.answerApihh.score;
+      store.state.score = this.score;
       this.displayAnimation(res.result, res.gameId);
     },
   },
@@ -363,121 +313,82 @@ export default {
 $base-color: #2c3e50;
 $answer-color: #279a39;
 
-.score {
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-}
-.score-ctn {
-  position: absolute;
-  z-index: 2;
-  color: white;
-}
-
-.score-ctn2 {
-  position: absolute;
-}
-.starface {
-  max-width: 425px;
+.covidgame {
+  max-width: 26.5em;
+  padding: 0.75em 1.5em;
+  max-height: 100vh;
   margin: 0 auto;
-  &--ctn-face {
-    position: relative;
-  }
-  &--img {
-    margin-top: 25px;
-    border-radius: 25px;
-    height: 702px;
-    width: 425px;
+  font-size: 16px;
+  display: grid;
+  grid-template-rows: auto minmax(60%, 100%) auto;
+  grid-gap: 0.75em;
 
-    &--hide {
-      z-index: -1;
+  .score {
+    text-align: left;
+    font-size: 1.25em;
+    font-weight: bold;
+    color: white;
+  }
+
+  .starface {
+    position: relative;
+
+    > * {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    &--img {
+      border-radius: 25px;
+    }
+
+    &--mask {
       position: absolute;
+      top: 0;
+    }
+
+    &--morphing {
+      position: absolute;
+      top: 0;
+      border-radius: 25px;
+
+      &--hide {
+        display: none;
+      }
     }
   }
-  &--mask {
-    position: absolute;
-    left: 50%;
-    margin-left: -128px;
-    top: 43%;
-    max-width: 265px;
-  }
-  &--aswitem {
-    position: absolute;
-    left: 50%;
-    margin-left: -60px;
-    top: 67%;
-    max-width: 120px;
-  }
+
   .answers {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 0.75em;
 
     &--choice {
-      min-height: 60px;
+      min-height: 3.5em;
       text-transform: capitalize;
-      padding: 6px 20px;
+      padding: 0.5em 1.25em;
       background-color: #eeeeee;
-      font-size: 18px;
-      border-radius: 16px;
+      font-size: 1em;
+      border-radius: 1em;
       color: $base-color;
       font-weight: bolder;
       border: none;
-      margin: 4px 4px;
       width: 100%;
-      max-width: 208px;
+      max-width: 13em;
       transition: background-color 200ms;
+
       &:focus {
         outline: none;
       }
     }
   }
-  &--morphing {
-    position: absolute;
-    top: 25px;
-    left: 0;
 
-    &--hide {
-      display: none;
-    }
+  @media screen and (max-height: 620px) {
+    font-size: 12px;
   }
 
-  // Broken imgwarp css class
-  .img {
-    display: inline-block;
-  }
-  .frames img {
-    width: 164px;
-  }
-}
-@media screen and (max-width: 450px) {
-  .starface--mask {
-    max-width: 250px;
-    margin-left: -125px;
-  }
-}
-@media screen and (max-width: 400px) {
-  .starface--mask {
-    max-width: 225px;
-    margin-left: -111px;
-  }
-}
-@media screen and (max-width: 350px) {
-  .starface--mask {
-    max-width: 200px;
-    margin-left: -100px;
-  }
-}
-@media screen and (max-width: 300px) {
-  .starface--mask {
-    max-width: 165px;
-    margin-left: -82px;
-  }
-}
-@media screen and (max-width: 250px) {
-  .starface--mask {
-    max-width: 155px;
-    margin-left: -82px;
+  @media screen and (min-height: 621px) and (max-height: 900px) {
+    font-size: 14px;
   }
 }
 </style>

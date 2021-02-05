@@ -150,7 +150,7 @@ ImgWarper.BilinearInterpolation.prototype.fill = function (
   y1 = Math.min(y1, this.height - 1);
 
   var xl, xr, topX, topY, bottomX, bottomY;
-  var yl, yr, rgb, index;
+  var yl, yr, index;
   for (i = x0; i <= x1; ++i) {
     xl = (i - x0) / (x1 - x0);
     xr = 1 - xl;
@@ -170,16 +170,15 @@ ImgWarper.BilinearInterpolation.prototype.fill = function (
         srcY < 0 ||
         srcY > this.height - 1
       ) {
-        this.imgTargetData.data[index] = 255;
-        this.imgTargetData.data[index + 1] = 255;
-        this.imgTargetData.data[index + 2] = 255;
-        this.imgTargetData.data[index + 3] = 255;
+        this.imgTargetData.data[index] = 0;
+        this.imgTargetData.data[index + 1] = 0;
+        this.imgTargetData.data[index + 2] = 0;
+        this.imgTargetData.data[index + 3] = 0;
         continue;
       }
       var srcX1 = Math.floor(srcX);
       var srcY1 = Math.floor(srcY);
       var base = (srcY1 * this.width + srcX1) * 4;
-      //rgb = this.nnquery(srcX, srcY);
       this.imgTargetData.data[index] = this.imgData[base];
       this.imgTargetData.data[index + 1] = this.imgData[base + 1];
       this.imgTargetData.data[index + 2] = this.imgData[base + 2];
@@ -284,75 +283,6 @@ ImgWarper.Point.prototype.InfintyNormDistanceTo = function (o) {
 };
 
 var ImgWarper = ImgWarper || {};
-
-ImgWarper.PointDefiner = function (canvas, image, imgData) {
-  this.oriPoints = new Array();
-  this.dstPoints = new Array();
-
-  //set up points for change;
-  this.canvas = canvas;
-  this.dragging_ = false;
-  this.computing_ = false;
-  this.image = image;
-  this.imgData = imgData;
-  this.currentPointIndex = -1;
-};
-
-ImgWarper.PointDefiner.prototype.redraw = function () {
-  this.redrawCanvas();
-};
-
-ImgWarper.PointDefiner.prototype.getCurrentPointIndex = function (q) {
-  var currentPoint = -1;
-
-  for (var i = 0; i < this.dstPoints.length; i++) {
-    if (this.dstPoints[i].InfintyNormDistanceTo(q) <= 20) {
-      currentPoint = i;
-      return i;
-    }
-  }
-  return currentPoint;
-};
-
-ImgWarper.PointDefiner.prototype.redrawCanvas = function (points) {
-  var ctx = this.canvas.getContext("2d");
-  ctx.clearRect(0, 0, this.imgData.width, this.imgData.height);
-  ctx.putImageData(this.imgData, 0, 0);
-  for (var i = 0; i < this.oriPoints.length; i++) {
-    if (i < this.dstPoints.length) {
-      if (i == this.currentPointIndex) {
-        this.drawOnePoint(this.dstPoints[i], ctx, "orange");
-      } else {
-        this.drawOnePoint(this.dstPoints[i], ctx, "#6373CF");
-      }
-
-      ctx.beginPath();
-      ctx.lineWidth = 3;
-      ctx.moveTo(this.oriPoints[i].x, this.oriPoints[i].y);
-      ctx.lineTo(this.dstPoints[i].x, this.dstPoints[i].y);
-      //ctx.strokeStyle = '#691C50';
-      ctx.stroke();
-    } else {
-      this.drawOnePoint(this.oriPoints[i], ctx, "#119a21");
-    }
-  }
-  ctx.stroke();
-};
-
-ImgWarper.PointDefiner.prototype.drawOnePoint = function (point, ctx, color) {
-  var radius = 10;
-  ctx.beginPath();
-  ctx.lineWidth = 3;
-  ctx.arc(parseInt(point.x), parseInt(point.y), radius, 0, 2 * Math.PI, false);
-  ctx.strokeStyle = color;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.lineWidth = 1;
-  ctx.arc(parseInt(point.x), parseInt(point.y), 3, 0, 2 * Math.PI, false);
-  ctx.fillStyle = color;
-  ctx.fill();
-};
 
 ImgWarper.Animator = function (pdef1, pdef2) {
   this.pointDefiner1 = pdef1;
