@@ -48,6 +48,11 @@
           v-on:click="sendAnswer(choice)"
           class="answers--choice"
           v-for="(choice, index) in imageData.choices"
+          :class="{
+            'answers--choice--correct': correctAnswer === choice,
+            'answers--choice--wrong':
+              userAnswer === choice && userAnswer !== correctAnswer,
+          }"
           :key="index"
         >
           {{ choice }}
@@ -75,6 +80,8 @@ export default {
       imageData: { choices: [], url: [] },
       score: null,
       pointDefiners: {},
+      userAnswer: null,
+      correctAnswer: null,
     };
   },
   created() {
@@ -157,6 +164,8 @@ export default {
     async loadNewData(gameId) {
       var res;
       this.clearCanvas();
+      this.userAnswer = null;
+      this.correctAnswer = null;
 
       if (gameId != undefined) {
         var params = {
@@ -213,6 +222,9 @@ export default {
           console.error(error);
         });
       this.score = res.score;
+      this.correctAnswer = res.response;
+      this.userAnswer = answer;
+
       // Store score in global store
       store.state.score = this.score;
       this.displayAnimation(res.result, res.gameId);
@@ -224,7 +236,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 $base-color: #2c3e50;
-$answer-color: #279a39;
+$correct-answer-color: #279a39;
+$wrong-answer-color: #c22929;
+$button-backgroud-color: #eeeeee;
 
 .covidgame {
   max-width: 26.5em;
@@ -280,7 +294,7 @@ $answer-color: #279a39;
       min-height: 3.5em;
       text-transform: capitalize;
       padding: 0.5em 1.25em;
-      background-color: #eeeeee;
+      background-color: $button-backgroud-color;
       font-size: 1em;
       border-radius: 1em;
       color: $base-color;
@@ -292,6 +306,16 @@ $answer-color: #279a39;
 
       &:focus {
         outline: none;
+      }
+
+      &--wrong {
+        background-color: $wrong-answer-color;
+        color: white;
+      }
+
+      &--correct {
+        color: white;
+        background-color: $correct-answer-color;
       }
     }
   }
