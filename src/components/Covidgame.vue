@@ -1,11 +1,7 @@
 <template>
   <div>
     <div class="covidgame">
-      <p class="score mb-0">
-        SCORE:
-        <span v-if="!score || score === 0">0</span>
-        {{ score }}
-      </p>
+      <p class="score mb-0">SCORE: {{ score }}</p>
       <div class="starface">
         <img
           class="starface--mask"
@@ -79,7 +75,7 @@ export default {
     return {
       displayMask: true,
       imageData: { choices: [], url: [] },
-      score: null,
+      score: 0,
       pointDefiners: {},
       userAnswer: null,
       correctAnswer: null,
