@@ -27,9 +27,6 @@ import store from "../store/index.js";
 
 export default {
   name: "EndGame",
-  props: {
-    score: Number,
-  },
   data: function () {
     return {
       store: store,
@@ -41,7 +38,7 @@ export default {
       if (i === 0) {
         i = 1;
         var scoreBar = this.$refs.scoreBar;
-        var width = this.score;
+        var width = 0;
         var id = setInterval(frame, 15);
         function frame() {
           if (width >= 80) {
@@ -60,7 +57,7 @@ export default {
       if (i === 0) {
         i = 1;
         var scoreText = this.$refs.scoreText;
-        var width = this.score;
+        var width = 0;
         var id = setInterval(frame, 3);
         function frame() {
           if (width >= store.state.score) {
@@ -75,7 +72,6 @@ export default {
     },
   },
   mounted() {
-    this.score = 0;
     this.move();
     this.calculate();
     console.log("store = ", store.state.score);
