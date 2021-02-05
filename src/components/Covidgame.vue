@@ -54,6 +54,7 @@
               userAnswer === choice && userAnswer !== correctAnswer,
           }"
           :key="index"
+          :disabled="disableClick"
         >
           {{ choice }}
         </button>
@@ -82,6 +83,7 @@ export default {
       pointDefiners: {},
       userAnswer: null,
       correctAnswer: null,
+      disableClick: false,
     };
   },
   created() {
@@ -200,6 +202,7 @@ export default {
               modifiedImagePoints
             );
             this.displayMask = true;
+            this.disableClick = false;
           }
         })
         .catch((error) => {
@@ -207,6 +210,7 @@ export default {
         });
     },
     async sendAnswer(answer) {
+      this.disableClick = true;
       var res;
       var formdata = new FormData();
       formdata.append("hash", this.imageData.hash);
