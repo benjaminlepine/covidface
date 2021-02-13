@@ -1,11 +1,7 @@
 <template>
   <div>
     <div class="covidgame">
-      <p class="score mb-0">
-        SCORE:
-        <span v-if="!score || score === 0">0</span>
-        {{ score }}
-      </p>
+      <p class="score mb-0">SCORE: {{ score }}</p>
       <div class="starface">
         <img
           class="starface--mask"
@@ -48,7 +44,13 @@
           v-on:click="sendAnswer(choice)"
           class="answers--choice"
           v-for="(choice, index) in imageData.choices"
+          :class="{
+            'answers--choice--correct': correctAnswer === choice,
+            'answers--choice--wrong':
+              userAnswer === choice && userAnswer !== correctAnswer,
+          }"
           :key="index"
+          :disabled="disableClick"
         >
           {{ choice }}
         </button>
@@ -60,120 +62,36 @@
 <script>
 import axios from "axios";
 import store from "../store/index.js";
-import Hourglass from "../animations/Hourglass";
-
-const originalImagePoints = [
-  { x: 0, y: 0 },
-  { x: 0, y: 117 },
-  { x: 0, y: 234 },
-  { x: 0, y: 351 },
-  { x: 0, y: 468 },
-  { x: 0, y: 585 },
-  { x: 0, y: 702 },
-  { x: 85, y: 0 },
-  { x: 170, y: 0 },
-  { x: 255, y: 0 },
-  { x: 340, y: 0 },
-  { x: 425, y: 0 },
-  { x: 425, y: 117 },
-  { x: 425, y: 234 },
-  { x: 425, y: 351 },
-  { x: 425, y: 468 },
-  { x: 425, y: 585 },
-  { x: 425, y: 702 },
-  { x: 85, y: 702 },
-  { x: 170, y: 702 },
-  { x: 255, y: 702 },
-  { x: 340, y: 702 },
-  { x: 75, y: 400 },
-  { x: 355, y: 400 },
-  { x: 155, y: 608 },
-  { x: 280, y: 608 },
-  { x: 212, y: 125 },
-  { x: 212, y: 238 },
-  { x: 212, y: 342 },
-  { x: 212, y: 485 },
-  { x: 148, y: 295 },
-  { x: 284, y: 295 },
-  { x: 147, y: 409 },
-  { x: 276, y: 409 },
-  { x: 168, y: 392 },
-  { x: 255, y: 392 },
-  { x: 212, y: 445 },
-];
-
-const modifiedImagePoints = [
-  { x: 0, y: 0 },
-  { x: 0, y: 117 },
-  { x: 0, y: 234 },
-  { x: 0, y: 351 },
-  { x: 0, y: 468 },
-  { x: 0, y: 585 },
-  { x: 0, y: 702 },
-  { x: 85, y: 0 },
-  { x: 170, y: 0 },
-  { x: 255, y: 0 },
-  { x: 340, y: 0 },
-  { x: 425, y: 0 },
-  { x: 425, y: 117 },
-  { x: 425, y: 234 },
-  { x: 425, y: 351 },
-  { x: 425, y: 468 },
-  { x: 425, y: 585 },
-  { x: 425, y: 702 },
-  { x: 85, y: 702 },
-  { x: 170, y: 702 },
-  { x: 255, y: 702 },
-  { x: 340, y: 702 },
-  { x: 75, y: 400 },
-  { x: 355, y: 400 },
-  { x: 155, y: 608 },
-  { x: 280, y: 608 },
-  { x: 212, y: 125 },
-  { x: 212, y: 238 },
-  { x: 212, y: 342 },
-  { x: 212, y: 485 },
-  { x: 148, y: 295 },
-  { x: 284, y: 295 },
-  { x: 135, y: 394 },
-  { x: 288, y: 395 },
-  { x: 167, y: 379 },
-  { x: 258, y: 380 },
-  { x: 212, y: 437 },
-];
-
-const IMAGE_WIDTH = 425;
-const IMAGE_HEIGHT = 702;
+import {
+  originalImagePoints,
+  modifiedImagePoints,
+  IMAGE_WIDTH,
+  IMAGE_HEIGHT,
+} from "../utils/constants";
 
 export default {
   name: "Covidgame",
-  components: { Hourglass },
-  props: {
-    msg: String,
-    argent: String,
-  },
   data: function () {
     return {
       displayMask: true,
       imageData: { choices: [], url: [] },
-      score: null,
+      score: 0,
       pointDefiners: {},
+      userAnswer: null,
+      correctAnswer: null,
+      disableClick: false,
     };
   },
   created() {
-    this.LoadNewData();
+    this.loadNewData();
   },
-  mounted() {},
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
       this.draw(result);
       setTimeout(() => {
-        this.LoadNewData(gameId);
+        this.loadNewData(gameId);
       }, 800);
-    },
-    loadEndgame() {
-      this.$router.push("/EndGame");
     },
     clearCanvas() {
       const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
@@ -241,9 +159,11 @@ export default {
       const context = this.$refs.result.getContext("2d");
       myLoop(frames, context, 0);
     },
-    async LoadNewData(gameId) {
+    async loadNewData(gameId) {
       var res;
       this.clearCanvas();
+      this.userAnswer = null;
+      this.correctAnswer = null;
 
       if (gameId != undefined) {
         var params = {
@@ -260,7 +180,7 @@ export default {
           res = response.data[0];
           this.imageData = res;
           if (res.game_end) {
-            this.loadEndgame();
+            this.$router.push("/EndGame");
           } else {
             this.onImageLoad(
               this.imageData.url[0],
@@ -278,6 +198,7 @@ export default {
               modifiedImagePoints
             );
             this.displayMask = true;
+            this.disableClick = false;
           }
         })
         .catch((error) => {
@@ -285,6 +206,7 @@ export default {
         });
     },
     async sendAnswer(answer) {
+      this.disableClick = true;
       var res;
       var formdata = new FormData();
       formdata.append("hash", this.imageData.hash);
@@ -300,6 +222,9 @@ export default {
           console.error(error);
         });
       this.score = res.score;
+      this.correctAnswer = res.response;
+      this.userAnswer = answer;
+
       // Store score in global store
       store.state.score = this.score;
       this.displayAnimation(res.result, res.gameId);
@@ -311,7 +236,9 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 $base-color: #2c3e50;
-$answer-color: #279a39;
+$correct-answer-color: #279a39;
+$wrong-answer-color: #c22929;
+$button-backgroud-color: #eeeeee;
 
 .covidgame {
   max-width: 26.5em;
@@ -367,7 +294,7 @@ $answer-color: #279a39;
       min-height: 3.5em;
       text-transform: capitalize;
       padding: 0.5em 1.25em;
-      background-color: #eeeeee;
+      background-color: $button-backgroud-color;
       font-size: 1em;
       border-radius: 1em;
       color: $base-color;
@@ -379,6 +306,16 @@ $answer-color: #279a39;
 
       &:focus {
         outline: none;
+      }
+
+      &--wrong {
+        background-color: $wrong-answer-color;
+        color: white;
+      }
+
+      &--correct {
+        color: white;
+        background-color: $correct-answer-color;
       }
     }
   }
