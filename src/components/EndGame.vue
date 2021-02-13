@@ -41,7 +41,7 @@ export default {
         var width = 0;
         var id = setInterval(frame, 15);
         function frame() {
-          if (width >= 80) {
+          if (width >= store.state.percent) {
             clearInterval(id);
             i = 0;
           } else {
@@ -74,7 +74,6 @@ export default {
   mounted() {
     this.move();
     this.calculate();
-    console.log("store = ", store.state.score);
   },
 };
 </script>

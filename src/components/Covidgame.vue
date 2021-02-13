@@ -185,6 +185,10 @@ export default {
           res = response.data[0];
           this.imageData = res;
           if (res.game_end) {
+            // Store score in global store
+            store.state.score = res.score;
+            store.state.percent = res.percent;
+
             this.$router.push("/EndGame");
           } else {
             this.onImageLoad(
@@ -230,8 +234,6 @@ export default {
       this.correctAnswer = res.response;
       this.userAnswer = answer;
 
-      // Store score in global store
-      store.state.score = this.score;
       this.displayAnimation(res.result, res.gameId);
     },
   },

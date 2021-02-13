@@ -5,7 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    score: 0
+    score: 0,
+    percent: 100,
   },
   mutations: {
   },
