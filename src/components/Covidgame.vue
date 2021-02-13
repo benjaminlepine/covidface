@@ -1,7 +1,10 @@
 <template>
   <div>
     <div class="covidgame">
-      <p class="score mb-0">SCORE: {{ score }}</p>
+      <div class="score-bar">
+        <p class="score mb-0">SCORE: {{ score }}</p>
+        <Hourglass />
+      </div>
       <div class="starface">
         <img
           class="starface--mask"
@@ -68,8 +71,10 @@ import {
   IMAGE_WIDTH,
   IMAGE_HEIGHT,
 } from "../utils/constants";
+import Hourglass from "../animations/Hourglass";
 
 export default {
+  components: { Hourglass },
   name: "Covidgame",
   data: function () {
     return {
@@ -249,6 +254,12 @@ $button-backgroud-color: #eeeeee;
   display: grid;
   grid-template-rows: auto minmax(60%, 100%) auto;
   grid-gap: 0.75em;
+
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
   .score {
     text-align: left;
