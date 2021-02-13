@@ -94,9 +94,12 @@ export default {
     displayAnimation(result, gameId) {
       this.displayMask = false;
       this.draw(result);
-      setTimeout(() => {
-        this.loadNewData(gameId);
-      }, 800);
+      setTimeout(
+        () => {
+          this.loadNewData(gameId);
+        },
+        result ? 800 : 1600
+      );
     },
     clearCanvas() {
       const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
