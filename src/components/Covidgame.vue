@@ -9,7 +9,7 @@
         <img
           class="starface--mask"
           v-if="displayMask"
-          src="../assets/mask.png"
+          :src="`http://service.covid-face.com/mask.jpg?rnd=${cacheKey}`"
           alt="mask"
         />
         <canvas
@@ -86,6 +86,7 @@ export default {
       correctAnswer: null,
       disableClick: false,
       requestUrl: `/face`,
+      cacheKey: +new Date(),
     };
   },
   created() {
@@ -97,6 +98,7 @@ export default {
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
+      this.cacheKey = +new Date();
       this.draw(result);
       setTimeout(
         () => {
