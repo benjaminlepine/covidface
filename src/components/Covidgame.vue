@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import client from "../utils/client";
 import store from "../store/index.js";
 import {
   originalImagePoints,
@@ -85,6 +85,7 @@ export default {
       userAnswer: null,
       correctAnswer: null,
       disableClick: false,
+      requestUrl: `/face`,
     };
   },
   created() {
@@ -179,8 +180,8 @@ export default {
       } else {
         var params = {};
       }
-      await axios
-        .get("http://service.covid-face.com/face", params)
+      await client
+        .get(this.requestUrl, params)
         .then((response) => {
           res = response.data[0];
           if (res.game_end) {
@@ -227,8 +228,8 @@ export default {
       formdata.append("response", answer);
       formdata.append("gameId", this.imageData.gameId);
 
-      await axios
-        .post("http://service.covid-face.com/face", formdata)
+      await client
+        .post(this.requestUrl, formdata)
         .then((response) => {
           res = response.data;
         })
