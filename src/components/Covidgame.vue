@@ -235,15 +235,15 @@ export default {
         .post(this.requestUrl, formdata)
         .then((response) => {
           res = response.data;
+          this.score = res.score;
+          this.correctAnswer = res.response;
+          this.userAnswer = answer;
+
+          this.displayAnimation(res.result, res.gameId);
         })
         .catch((error) => {
           console.error(error);
         });
-      this.score = res.score;
-      this.correctAnswer = res.response;
-      this.userAnswer = answer;
-
-      this.displayAnimation(res.result, res.gameId);
     },
   },
 };
