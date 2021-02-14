@@ -12,47 +12,43 @@
     <router-link to="/Covidgame" class="btn covid-btn covid-btn--start"
       >Commencer</router-link
     ><br />
-    <!--<div class="categorie-ctn mb-5">
-          <h1>CATEGORIES</h1>
-          <div class="row">
-            <div class="categorie-element--ghost col"></div>
-            <div class="categorie-element col">
-              <img class="categorie-icn" src="../assets/football.png" alt="football">
-              <p class="categorie-subtitle">Football</p>
-            </div>
-            <div class="categorie-element col">
-              <img class="categorie-icn" src="../assets/politic.png" alt="politic">
-              <p class="categorie-subtitle">Politique</p>
-            </div>
-            <div class="categorie-element--ghost col"></div>
-          </div>
-          <div class="row">
-            <div class="categorie-element--ghost col"></div>
-            <div class="categorie-element col">
-              <img class="categorie-icn" src="../assets/cinema.png" alt="cinema">
-              <p class="categorie-subtitle">Cinéma</p>
-            </div>
-            <div class="categorie-element col">
-              <img class="categorie-icn" src="../assets/music.png" alt="music">
-              <p class="categorie-subtitle">Musique</p>
-            </div>
-            <div class="categorie-element--ghost col"></div>
-          </div>
-        </div>-->
+    <div class="categories-ctn mb-5">
+      <h1>CATEGORIES</h1>
+      <div class="categories-list">
+        <router-link
+          class="categories-element col"
+          v-for="{ slug, name } in categories"
+          :key="slug"
+          :to="`/Covidgame/${slug}`"
+        >
+          <img
+            class="categories-element-icn"
+            :src="getAssetUrl(slug)"
+            :alt="slug"
+          />
+          <p class="categories-element-subtitle">{{ name }}</p>
+        </router-link>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: "HomePage",
-  props: {
-    msg: String,
-  },
-  el: "main",
   data: function () {
-    return {};
+    return {
+      categories: [
+        { name: "Cinéma", slug: "cinema" },
+        { name: "Football", slug: "football" },
+      ],
+    };
   },
-  methods: {},
+  methods: {
+    getAssetUrl: (slug) => {
+      return require(`../assets/${slug}.png`);
+    },
+  },
 };
 </script>
 
@@ -79,25 +75,31 @@ export default {
   }
 }
 
-.categorie {
-  &-icn {
-    max-width: 100px;
-  }
+.categories {
   &-ctn {
     & h1 {
       color: #5ff759;
       font-size: 35px;
       font-family: Coronaviral, "Times New Roman", Times, sans-serif;
     }
+
     border: 2px solid #5ff759;
     border-radius: 30px;
     padding: 15px;
     margin: 30px;
   }
+
+  &-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1em;
+  }
+
   &-element {
     transition: filter 300ms, opacity 300ms, transform 0.8s ease-in-out;
     -webkit-transition: -webkit-transform 0.4s ease-in-out;
     padding: 0px;
+
     &:hover {
       filter: brightness(1.25);
       cursor: pointer;
@@ -106,18 +108,17 @@ export default {
       border-radius: 20%;
       border-color: #536d8a;
     }
-  }
-  &-subtitle {
-    color: #a2c2e3;
-    margin-bottom: 0;
-    font-size: 18px;
-    font-family: Helvetica;
-  }
-}
 
-@media screen and (max-width: 800px) {
-  .categorie-element--ghost {
-    display: none;
+    &-icn {
+      max-width: 100px;
+    }
+
+    &-subtitle {
+      color: #a2c2e3;
+      margin-bottom: 0;
+      font-size: 18px;
+      font-family: Helvetica;
+    }
   }
 }
 </style>

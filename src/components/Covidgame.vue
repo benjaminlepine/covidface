@@ -89,6 +89,9 @@ export default {
     };
   },
   created() {
+    if (this.$route.params.category) {
+      this.requestUrl = this.requestUrl + `/${this.$route.params.category}`;
+    }
     this.loadNewData();
   },
   methods: {

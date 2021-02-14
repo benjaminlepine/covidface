@@ -10,7 +10,7 @@ Vue.use(VueRouter);
 const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/Home", component: Home },
-  { path: "/Covidgame", component: Covidgame },
+  { path: "/Covidgame/:category?", component: Covidgame },
   { path: "/Homepage", component: Homepage },
   { path: "/EndGame", component: EndGame },
   {
