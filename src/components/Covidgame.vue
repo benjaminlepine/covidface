@@ -94,9 +94,12 @@ export default {
     displayAnimation(result, gameId) {
       this.displayMask = false;
       this.draw(result);
-      setTimeout(() => {
-        this.loadNewData(gameId);
-      }, 800);
+      setTimeout(
+        () => {
+          this.loadNewData(gameId);
+        },
+        result ? 800 : 1600
+      );
     },
     clearCanvas() {
       const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
@@ -166,9 +169,6 @@ export default {
     },
     async loadNewData(gameId) {
       var res;
-      this.clearCanvas();
-      this.userAnswer = null;
-      this.correctAnswer = null;
 
       if (gameId != undefined) {
         var params = {
@@ -183,10 +183,15 @@ export default {
         .get("http://service.covid-face.com/face", params)
         .then((response) => {
           res = response.data[0];
-          this.imageData = res;
           if (res.game_end) {
+            // Store score in global store
+            store.state.score = res.score;
+            store.state.percent = res.percent;
+
             this.$router.push("/EndGame");
           } else {
+            this.imageData = res;
+
             this.onImageLoad(
               this.imageData.url[0],
               "canvas1",
@@ -202,8 +207,12 @@ export default {
               "canvas3",
               modifiedImagePoints
             );
-            this.displayMask = true;
+
+            this.clearCanvas();
+            this.userAnswer = null;
+            this.correctAnswer = null;
             this.disableClick = false;
+            this.displayMask = true;
           }
         })
         .catch((error) => {
@@ -230,8 +239,6 @@ export default {
       this.correctAnswer = res.response;
       this.userAnswer = answer;
 
-      // Store score in global store
-      store.state.score = this.score;
       this.displayAnimation(res.result, res.gameId);
     },
   },
