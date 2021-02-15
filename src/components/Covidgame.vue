@@ -85,14 +85,10 @@ export default {
       userAnswer: null,
       correctAnswer: null,
       disableClick: false,
-      requestUrl: `/face`,
       cacheKey: +new Date(),
     };
   },
   created() {
-    if (this.$route.params.category) {
-      this.requestUrl = this.requestUrl + `/${this.$route.params.category}`;
-    }
     this.loadNewData();
   },
   methods: {
@@ -185,8 +181,14 @@ export default {
       } else {
         var params = {};
       }
+
+      let requestUrl = "/face";
+      if (this.$route.params.category) {
+        requestUrl = requestUrl + `/${this.$route.params.category}`;
+      }
+
       await client
-        .get(this.requestUrl, params)
+        .get(requestUrl, params)
         .then((response) => {
           res = response.data[0];
           if (res.game_end) {
@@ -234,7 +236,7 @@ export default {
       formdata.append("gameId", this.imageData.gameId);
 
       await client
-        .post(this.requestUrl, formdata)
+        .post("/face", formdata)
         .then((response) => {
           res = response.data;
           this.score = res.score;
