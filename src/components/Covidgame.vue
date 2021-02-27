@@ -3,7 +3,7 @@
     <div class="covidgame">
       <div class="score-bar">
         <p class="score mb-0">SCORE: {{ score }}</p>
-        <Hourglass />
+        <Hourglass :timer="timer" />
       </div>
       <div class="starface">
         <img
@@ -86,6 +86,8 @@ export default {
       correctAnswer: null,
       disableClick: false,
       cacheKey: +new Date(),
+      timer: 10,
+      timerId: null,
     };
   },
   created() {
@@ -221,6 +223,10 @@ export default {
             this.correctAnswer = null;
             this.disableClick = false;
             this.displayMask = true;
+            this.timer = 10;
+            this.timerId = setInterval(() => {
+              --this.timer;
+            }, 1000);
           }
         })
         .catch((error) => {
@@ -229,6 +235,8 @@ export default {
     },
     async sendAnswer(answer) {
       this.disableClick = true;
+      clearInterval(this.timerId);
+
       var res;
       var formdata = new FormData();
       formdata.append("hash", this.imageData.hash);
