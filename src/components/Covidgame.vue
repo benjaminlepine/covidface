@@ -6,10 +6,11 @@
         <Hourglass :timer="timer" />
       </div>
       <div class="starface">
+        <Spinner class="starface--spinner" v-if="displayLoader" />
         <img
           class="starface--mask"
           :class="{
-            'covidgame--hide': !displayMask,
+            'covidgame--hide': !displayMask || displayLoader,
           }"
           ref="maskImg"
           alt="mask"
@@ -35,13 +36,20 @@
         <canvas
           class="starface--morphing"
           :class="{
-            'covidgame--hide': !displayCanvas,
+            'covidgame--hide': !displayCanvas || displayLoader,
           }"
           ref="result"
           height="702"
           width="425"
         />
-        <img class="starface--img" ref="starfaceImg" alt="masked star face" />
+        <img
+          class="starface--img"
+          :class="{
+            'covidgame--hide': displayLoader,
+          }"
+          ref="starfaceImg"
+          alt="masked star face"
+        />
       </div>
       <div class="answers">
         <button
@@ -73,6 +81,7 @@ import {
   IMAGE_HEIGHT,
 } from "../utils/constants";
 import Hourglass from "../animations/Hourglass";
+import Spinner from "../animations/Spinner";
 
 export default {
   components: { Hourglass, Spinner },
@@ -83,6 +92,7 @@ export default {
       score: 0,
       pointDefiners: {},
       cacheKey: +new Date(),
+      displayLoader: true,
       displayCanvas: false,
       displayMask: false,
       userAnswer: null,
@@ -130,6 +140,7 @@ export default {
       ]).then((values) => {
         this.$refs["maskImg"].src = values[0].src;
         this.$refs["starfaceImg"].src = values[1].src;
+        this.displayLoader = false;
         this.imageData = imageData;
         this.resetRound();
       });
@@ -290,10 +301,17 @@ $button-backgroud-color: #eeeeee;
 
   .starface {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     > * {
       max-width: 100%;
       max-height: 100%;
+    }
+
+    &--spinner {
+      margin-top: 5em;
     }
 
     &--img {
