@@ -8,39 +8,40 @@
       <div class="starface">
         <img
           class="starface--mask"
-          v-if="displayMask"
-          :src="`http://service.covid-face.com/mask.jpg?rnd=${cacheKey}`"
+          :class="{
+            'covidgame--hide': !displayMask,
+          }"
+          ref="maskImg"
           alt="mask"
         />
         <canvas
-          class="starface--morphing starface--morphing--hide"
+          class="starface--morphing covidgame--hide"
           ref="canvas1"
           height="702"
           width="425"
         />
         <canvas
-          class="starface--morphing starface--morphing--hide"
+          class="starface--morphing covidgame--hide"
           ref="canvas2"
           height="702"
           width="425"
         />
         <canvas
-          class="starface--morphing starface--morphing--hide"
+          class="starface--morphing covidgame--hide"
           ref="canvas3"
           height="702"
           width="425"
         />
         <canvas
           class="starface--morphing"
+          :class="{
+            'covidgame--hide': !displayCanvas,
+          }"
           ref="result"
           height="702"
           width="425"
         />
-        <img
-          class="starface--img"
-          :src="imageData.url[0]"
-          alt="masked star face"
-        />
+        <img class="starface--img" ref="starfaceImg" alt="masked star face" />
       </div>
       <div class="answers">
         <button
@@ -74,18 +75,19 @@ import {
 import Hourglass from "../animations/Hourglass";
 
 export default {
-  components: { Hourglass },
+  components: { Hourglass, Spinner },
   name: "Covidgame",
   data: function () {
     return {
-      displayMask: true,
       imageData: { choices: [], url: [] },
       score: 0,
       pointDefiners: {},
+      cacheKey: +new Date(),
+      displayCanvas: false,
+      displayMask: false,
       userAnswer: null,
       correctAnswer: null,
       disableClick: false,
-      cacheKey: +new Date(),
       timer: 10,
       timerId: null,
     };
@@ -95,6 +97,7 @@ export default {
   },
   methods: {
     displayAnimation(result, gameId) {
+      this.displayCanvas = true;
       this.displayMask = false;
       this.cacheKey = +new Date();
       this.draw(result);
@@ -105,13 +108,30 @@ export default {
         result ? 800 : 1600
       );
     },
-    clearCanvas() {
-      const canvasList = ["canvas1", "canvas2", "canvas3", "result"];
-      canvasList.forEach((target) => {
-        const canvas = this.$refs[target];
-        if (canvas) {
-          canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-        }
+    resetRound() {
+      this.displayCanvas = false;
+      this.displayMask = true;
+      this.userAnswer = null;
+      this.correctAnswer = null;
+      this.disableClick = false;
+      const canvas = this.$refs["result"];
+      canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+      this.timer = 10;
+      this.timerId = setInterval(() => {
+        --this.timer;
+      }, 1000);
+    },
+    loadNewRound(imageData) {
+      Promise.all([
+        this.loadImage(
+          `http://service.covid-face.com/mask.jpg?rnd=${this.cacheKey}`
+        ),
+        this.loadImage(imageData.url[0]),
+      ]).then((values) => {
+        this.$refs["maskImg"].src = values[0].src;
+        this.$refs["starfaceImg"].src = values[1].src;
+        this.imageData = imageData;
+        this.resetRound();
       });
     },
     loadImage(url) {
@@ -172,16 +192,13 @@ export default {
       myLoop(frames, context, 0);
     },
     async loadNewData(gameId) {
-      var res;
-
-      if (gameId != undefined) {
-        var params = {
+      let params = {};
+      if (gameId !== undefined) {
+        params = {
           params: {
             gameId: gameId,
           },
         };
-      } else {
-        var params = {};
       }
 
       let requestUrl = "/face";
@@ -192,7 +209,7 @@ export default {
       await client
         .get(requestUrl, params)
         .then((response) => {
-          res = response.data[0];
+          const res = response.data[0];
           if (res.game_end) {
             // Store score in global store
             store.state.score = res.score;
@@ -200,33 +217,10 @@ export default {
 
             this.$router.push("/EndGame");
           } else {
-            this.imageData = res;
-
-            this.onImageLoad(
-              this.imageData.url[0],
-              "canvas1",
-              originalImagePoints
-            );
-            this.onImageLoad(
-              this.imageData.url[1],
-              "canvas2",
-              modifiedImagePoints
-            );
-            this.onImageLoad(
-              this.imageData.url[2],
-              "canvas3",
-              modifiedImagePoints
-            );
-
-            this.clearCanvas();
-            this.userAnswer = null;
-            this.correctAnswer = null;
-            this.disableClick = false;
-            this.displayMask = true;
-            this.timer = 10;
-            this.timerId = setInterval(() => {
-              --this.timer;
-            }, 1000);
+            this.onImageLoad(res.url[0], "canvas1", originalImagePoints);
+            this.onImageLoad(res.url[1], "canvas2", modifiedImagePoints);
+            this.onImageLoad(res.url[2], "canvas3", modifiedImagePoints);
+            this.loadNewRound(res);
           }
         })
         .catch((error) => {
@@ -237,8 +231,7 @@ export default {
       this.disableClick = true;
       clearInterval(this.timerId);
 
-      var res;
-      var formdata = new FormData();
+      let formdata = new FormData();
       formdata.append("hash", this.imageData.hash);
       formdata.append("response", answer);
       formdata.append("gameId", this.imageData.gameId);
@@ -246,7 +239,7 @@ export default {
       await client
         .post("/face", formdata)
         .then((response) => {
-          res = response.data;
+          const res = response.data;
           this.score = res.score;
           this.correctAnswer = res.response;
           this.userAnswer = answer;
@@ -277,6 +270,10 @@ $button-backgroud-color: #eeeeee;
   display: grid;
   grid-template-rows: auto minmax(60%, 100%) auto;
   grid-gap: 0.75em;
+
+  &--hide {
+    display: none;
+  }
 
   .score-bar {
     display: flex;
@@ -312,10 +309,6 @@ $button-backgroud-color: #eeeeee;
       position: absolute;
       top: 0;
       border-radius: 25px;
-
-      &--hide {
-        display: none;
-      }
     }
   }
 
