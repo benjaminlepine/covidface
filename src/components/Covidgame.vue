@@ -9,7 +9,7 @@
         <img
           class="starface--mask"
           v-if="displayMask"
-          src="../assets/mask.png"
+          :src="`http://service.covid-face.com/mask.jpg?rnd=${cacheKey}`"
           alt="mask"
         />
         <canvas
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import client from "../utils/client";
 import store from "../store/index.js";
 import {
   originalImagePoints,
@@ -85,6 +85,7 @@ export default {
       userAnswer: null,
       correctAnswer: null,
       disableClick: false,
+      cacheKey: +new Date(),
     };
   },
   created() {
@@ -93,6 +94,7 @@ export default {
   methods: {
     displayAnimation(result, gameId) {
       this.displayMask = false;
+      this.cacheKey = +new Date();
       this.draw(result);
       setTimeout(
         () => {
@@ -179,8 +181,14 @@ export default {
       } else {
         var params = {};
       }
-      await axios
-        .get("http://service.covid-face.com/face", params)
+
+      let requestUrl = "/face";
+      if (this.$route.params.category) {
+        requestUrl = requestUrl + `/${this.$route.params.category}`;
+      }
+
+      await client
+        .get(requestUrl, params)
         .then((response) => {
           res = response.data[0];
           if (res.game_end) {
@@ -227,19 +235,19 @@ export default {
       formdata.append("response", answer);
       formdata.append("gameId", this.imageData.gameId);
 
-      await axios
-        .post("http://service.covid-face.com/face", formdata)
+      await client
+        .post("/face", formdata)
         .then((response) => {
           res = response.data;
+          this.score = res.score;
+          this.correctAnswer = res.response;
+          this.userAnswer = answer;
+
+          this.displayAnimation(res.result, res.gameId);
         })
         .catch((error) => {
           console.error(error);
         });
-      this.score = res.score;
-      this.correctAnswer = res.response;
-      this.userAnswer = answer;
-
-      this.displayAnimation(res.result, res.gameId);
     },
   },
 };
