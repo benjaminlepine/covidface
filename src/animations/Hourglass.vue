@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex">
+  <div class="hourglass-ctn">
     <svg class="hourglass" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
       <defs>
         <clipPath id="hourglass">
@@ -71,36 +71,50 @@
         </g>
       </g>
     </svg>
+    <span
+      class="hourglass-timer"
+      :class="{
+        'hourglass-timer--positive': timer > 0,
+        'hourglass-timer--negative': timer < 0,
+      }"
+      >{{ timer }}</span
+    >
   </div>
 </template>
 <script>
 export default {
+  props: ["timer"],
   data: function () {
     return {};
   },
-  created() {},
-
-  methods: {
-    startime() {
-      let timeleft = 10;
-      let downloadTimer = setInterval(function () {
-        if (timeleft <= 0) {
-          clearInterval(downloadTimer);
-          this.$refs.usernameInput.innerHTML = "Finished";
-        } else {
-          console.log("timeleft = ", timeleft);
-        }
-      }, 1000);
-      timeleft--;
-    },
-  },
+  methods: {},
 };
 </script>
 <style lang="scss">
+$positive-color: #0d7b1e;
+$negative-color: #c22929;
+
 .hourglass {
+  &-ctn {
+    display: flex;
+    align-items: center;
+  }
+
   margin: auto;
   display: block;
   width: 24px;
   height: 24px;
+
+  &-timer {
+    font-weight: bold;
+
+    &--positive {
+      color: $positive-color;
+    }
+
+    &--negative {
+      color: $negative-color;
+    }
+  }
 }
 </style>
